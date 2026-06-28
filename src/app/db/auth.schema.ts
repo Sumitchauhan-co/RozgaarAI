@@ -10,7 +10,6 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const userRoleEnum = pgEnum("user_role", [
-  "user",
   "worker",
   "recruiter",
   "admin",
@@ -29,7 +28,7 @@ export const usersTable = pgTable("users", {
 
   password: varchar("password", { length: 255 }),
 
-  role: userRoleEnum("role").default("user").notNull(),
+  role: userRoleEnum("role"),
 
   refreshToken: text("refresh_token"),
 

@@ -56,11 +56,17 @@ export default function Navbar() {
         {/* Right Side */}
 
         <div className="flex items-center gap-3">
-          <button className="rounded-xl px-5 py-2 text-[#5B1E05] transition hover:bg-[#F5ECE4]">
+          <button
+            type="button"
+            className="rounded-xl px-5 py-2 text-[#5B1E05] transition hover:bg-[#F5ECE4]"
+          >
             Login
           </button>
 
-          <button className="rounded-xl bg-[#5B1E05] px-6 py-3 font-semibold text-white shadow-md transition hover:bg-[#442003]">
+          <button
+            type="button"
+            className="rounded-xl bg-[#5B1E05] px-6 py-3 font-semibold text-white shadow-md transition hover:bg-[#442003]"
+          >
             Get Started
           </button>
         </div>
