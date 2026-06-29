@@ -1,6 +1,6 @@
 import { usersTable } from "@/app/db/auth.schema";
 import { db } from "@/app/db/index";
-import apiError from "@/app/utils/apiError";
+import apiError, { handleApiError } from "@/app/utils/apiError"; // Added handleApiError import
 import { tokenPayload, verifyAccessToken } from "@/app/utils/token";
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
@@ -20,12 +20,16 @@ export const authenticate = (handler: AuthenticatedHandler) => {
       const header = req.headers.get("authorization");
 
       if (!header || !header.startsWith("Bearer ")) {
-        return apiError.badRequest("Invalid authorization header");
+        return handleApiError(
+          apiError.badRequest("Invalid authorization header")
+        );
       }
 
       const token = header.split(" ")[1];
       if (!token) {
-        return apiError.unauthorized("Not authorized for the action");
+        return handleApiError(
+          apiError.unauthorized("Not authorized for the action")
+        );
       }
 
       const decoded = (await verifyAccessToken(token)) as tokenPayload;
@@ -39,17 +43,17 @@ export const authenticate = (handler: AuthenticatedHandler) => {
         .where(eq(usersTable.id, decoded.id));
 
       if (!user) {
-        return apiError.unauthorized("User no longer exists");
+        return handleApiError(apiError.unauthorized("User no longer exists"));
       }
 
       return await handler(req, {
         user: {
           id: user.id,
-          role: user.role as "worker" | "recruiter" | "admin",
+          role: user.role as "worker" | "recruiter" | "admin" | "guest",
         },
       });
     } catch (error) {
-      return apiError.unauthorized("Invalid or expired token");
+      return handleApiError(apiError.unauthorized("Invalid or expired token"));
     }
   };
 };

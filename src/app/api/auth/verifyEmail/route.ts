@@ -1,5 +1,5 @@
 import { verifyEmailService } from "@/app/services/auth.service";
-import ApiError from "@/app/utils/apiError";
+import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { NextRequest } from "next/server";
 
@@ -18,6 +18,10 @@ export const GET = async (req: NextRequest) => {
   } catch (error) {
     console.log(error);
 
-    throw ApiError.internal("Internal server error");
+    if (error instanceof ApiError) {
+      return handleApiError(error);
+    }
+
+    return handleApiError(ApiError.internal("Internal server error", error));
   }
 };

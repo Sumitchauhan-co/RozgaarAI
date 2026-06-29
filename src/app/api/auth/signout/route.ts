@@ -1,6 +1,6 @@
 import { authenticate } from "@/app/middlewares/authenticate";
 import { signoutService } from "@/app/services/auth.service";
-import ApiError from "@/app/utils/apiError";
+import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -25,6 +25,6 @@ export const POST = authenticate(async (req: NextRequest, context) => {
   } catch (error) {
     console.log(error);
 
-    throw ApiError.internal("Internal server error");
+    return handleApiError(ApiError.internal("Internal server error", error));
   }
 });

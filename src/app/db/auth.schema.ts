@@ -13,6 +13,7 @@ export const userRoleEnum = pgEnum("user_role", [
   "worker",
   "recruiter",
   "admin",
+  "guest",
 ]);
 
 export const usersTable = pgTable("users", {
@@ -28,7 +29,10 @@ export const usersTable = pgTable("users", {
 
   password: varchar("password", { length: 255 }),
 
-  role: userRoleEnum("role"),
+  role: userRoleEnum("role")
+    .default("guest")
+    .notNull()
+    .$type<"guest" | "worker" | "recruiter" | "admin">(),
 
   refreshToken: text("refresh_token"),
 

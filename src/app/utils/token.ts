@@ -4,7 +4,7 @@ import jwt, { SignOptions } from "jsonwebtoken";
 
 export interface tokenPayload {
   id: string;
-  role: "worker" | "recruiter" | "admin";
+  role: "worker" | "recruiter" | "admin" | "guest";
 }
 
 export const generateHashPassword = async (userPassowrd: string) => {
