@@ -8,6 +8,7 @@ export default function Home() {
     <main className="min-h-screen bg-[#FCFBF9]">
       <Navbar />
       <Hero />
+      <Categories />
       <Footer />
     </main>
   );
