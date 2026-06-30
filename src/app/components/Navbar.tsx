@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  BriefcaseBusiness,
   Menu,
   PlusCircle,
   X
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -17,18 +17,17 @@ export default function Navbar() {
 
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
 
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2">
-
-          <div className="rounded-xl bg-[#F5E7DA] p-2">
-            <BriefcaseBusiness className="text-[#8F3E13]" />
-          </div>
-
-          <span className="text-xl font-black text-[#2B0F05]">
-            Rozgaar<span className="text-[#8F3E13]">AI</span>
-          </span>
-
-        </Link>
+       {/* LOGO */}
+<Link href="/" className="flex items-center gap-2">
+  <Image
+    src="/images/logo.png"
+    alt="RozgaarAI Logo"
+    width={140}
+    height={40}
+    className="object-contain"
+    priority
+  />
+</Link>
 
         {/* DESKTOP NAV */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
