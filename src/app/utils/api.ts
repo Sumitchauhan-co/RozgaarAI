@@ -2,7 +2,6 @@ import { getAccessToken, setAccessToken } from "@/app/store/store";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 
@@ -42,7 +41,7 @@ api.interceptors.response.use(
 
       try {
         const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
+          `/api/auth/refresh`,
           {},
           { withCredentials: true }
         );
