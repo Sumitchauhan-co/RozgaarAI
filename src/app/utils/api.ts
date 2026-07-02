@@ -65,7 +65,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         setAccessToken(null);
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          sessionStorage.setItem("session_checked", "dead");
+          window.location.href = "/";
         }
         return Promise.reject(refreshError);
       }
