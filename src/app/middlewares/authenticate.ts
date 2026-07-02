@@ -21,7 +21,7 @@ export const authenticate = (handler: AuthenticatedHandler) => {
 
       if (!header || !header.startsWith("Bearer ")) {
         return handleApiError(
-          apiError.badRequest("Invalid authorization header")
+          apiError.unauthorized("Invalid or missing authorization header")
         );
       }
 
@@ -53,6 +53,8 @@ export const authenticate = (handler: AuthenticatedHandler) => {
         },
       });
     } catch (error) {
+      console.log(error);
+
       return handleApiError(apiError.unauthorized("Invalid or expired token"));
     }
   };

@@ -1,10 +1,10 @@
-import { authenticate } from "@/app/middlewares/authenticate";
 import { cookieOptions, refreshService } from "@/app/services/auth.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
 
-export const POST = authenticate(async () => {
+export const POST = async (req: NextRequest) => {
   try {
     const cookieStore = await cookies();
     const cookieObject = cookieStore.get("refreshToken");
@@ -32,7 +32,7 @@ export const POST = authenticate(async () => {
       user,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     if (error instanceof ApiError) {
       return handleApiError(error);
@@ -40,4 +40,4 @@ export const POST = authenticate(async () => {
 
     return handleApiError(ApiError.internal("Internal server error", error));
   }
-});
+};

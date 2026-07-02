@@ -9,7 +9,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -60,14 +59,19 @@ export default function Hero() {
 
             <div className="mt-10 flex flex-wrap gap-5">
               <button
-              onClick={() => location.href="/jobs"}
-              className="rounded-2xl bg-[#5B1E05] px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:bg-[#431302] hover:shadow-2xl">
+                title="jobs"
+                type="button"
+                onClick={() => (location.href = "/jobs")}
+                className="rounded-2xl bg-[#5B1E05] px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:bg-[#431302] hover:shadow-2xl"
+              >
                 Find Work →
               </button>
 
               <button
-              onClick={() => location.href="/hire"}
-              className="rounded-2xl border border-[#D8C7B8] bg-white px-8 py-4 font-semibold text-[#5B1E05] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                type="button"
+                onClick={() => (location.href = "/hire")}
+                className="rounded-2xl border border-[#D8C7B8] bg-white px-8 py-4 font-semibold text-[#5B1E05] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              >
                 Hire Workers
               </button>
             </div>
@@ -196,7 +200,10 @@ export default function Hero() {
               <ChevronDown />
             </div>
 
-            <button className="rounded-2xl bg-[#5B1E05] px-10 py-5 font-semibold text-white hover:bg-[#421502]">
+            <button
+              type="button"
+              className="rounded-2xl bg-[#5B1E05] px-10 py-5 font-semibold text-white hover:bg-[#421502]"
+            >
               Search Jobs
             </button>
           </div>

@@ -1,68 +1,62 @@
 "use client";
 
-import axios, { isAxiosError } from "axios";
+import { signInAction } from "@/app/actions/auth";
 import { ArrowLeft, Lock, Mail, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { setAccessToken, useAuthStore } from "../store/store";
 
 export default function LoginPage() {
-  const router = useRouter();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const { setAuthenticated } = useAuthStore();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setError("");
 
-    try {
-      setLoading(true);
+    const formData = new FormData(e.currentTarget);
 
-      const response = await axios.post(`/api/auth/signin`, {
-        email,
-        password,
-      });
+    const targetForm = e.currentTarget;
 
-      console.log("Login Success:", response.data);
+    startTransition(async () => {
+      const res = await signInAction(formData);
 
-      // Save JWT Token if your backend returns one
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+      if (res?.error) {
+        setError(res.error);
+        return;
       }
 
-      // Redirect after successful login
+      const token = res.data.accessToken;
+
+      setAccessToken(token);
+      setAuthenticated(true);
+      targetForm.reset();
+
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("session_checked");
+      }
+
       router.push("/");
-    } catch (err) {
-      console.error(err);
-
-      if (isAxiosError(err)) {
-        setError(err.response?.data?.message || "Invalid email or password.");
-      }
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#FCF8F4]">
-      <div className="relative w-full max-w-md rounded-3xl bg-white p-10 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-[#FCF8F4] px-4">
+      <div className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-xl sm:p-10">
         {/* Back Button */}
-        <button
-          type="button"
+        <Link
+          href="/"
           title="Go Back"
-          onClick={() => router.push("/")}
           className="absolute top-6 left-6 flex h-10 w-10 items-center justify-center rounded-full bg-[#F5E7DA] text-[#8F3E13] transition-all duration-300 hover:scale-105 hover:bg-[#EFD8C4]"
         >
           <ArrowLeft size={20} />
-        </button>
+        </Link>
 
         {/* Header */}
-        <div className="text-center">
+        <div className="mt-4 text-center">
           <div className="flex justify-center">
             <div className="rounded-2xl bg-[#F5E7DA] p-4">
               <Sparkles className="text-[#8F3E13]" />
@@ -73,67 +67,76 @@ export default function LoginPage() {
             Welcome Back
           </h1>
 
-          <p className="mt-2 text-gray-500">Login to Rozgaar AI</p>
+          <p className="mt-2 text-sm text-gray-500">Login to Rozgaar AI</p>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-          {/* Email */}
+          {/* Email input field */}
           <div>
-            <label className="text-sm font-semibold">Email</label>
-
-            <div className="mt-2 flex items-center gap-3 rounded-xl border p-4">
-              <Mail className="text-[#8F3E13]" size={18} />
-
+            <label
+              htmlFor="email"
+              className="text-sm font-semibold text-[#2B0F05]"
+            >
+              Email
+            </label>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
+              <Mail className="shrink-0 text-[#8F3E13]" size={18} />
               <input
+                id="email"
                 type="email"
                 name="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full outline-none"
+                className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none"
+                disabled={isPending}
                 required
               />
             </div>
           </div>
 
-          {/* Password */}
+          {/* Password input field */}
           <div>
-            <label className="text-sm font-semibold">Password</label>
-
-            <div className="mt-2 flex items-center gap-3 rounded-xl border p-4">
-              <Lock className="text-[#8F3E13]" size={18} />
-
+            <label
+              htmlFor="password"
+              className="text-sm font-semibold text-[#2B0F05]"
+            >
+              Password
+            </label>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
+              <Lock className="shrink-0 text-[#8F3E13]" size={18} />
               <input
+                id="password"
                 type="password"
                 name="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full outline-none"
+                className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none"
+                disabled={isPending}
                 required
               />
             </div>
           </div>
 
-          {/* Error Message */}
+          {/* Error Message banner */}
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+            <div
+              className="animate-fade-in rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+              role="alert"
+            >
               {error}
             </div>
           )}
 
-          {/* Submit Button */}
+          {/* Dynamic Submission Control */}
           <button
             type="submit"
-            disabled={loading}
-            className="w-full rounded-2xl bg-[#5B1E05] py-4 font-semibold text-white transition hover:bg-[#3F1203] disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={isPending}
+            className="w-full rounded-2xl bg-[#5B1E05] py-4 font-semibold text-white transition hover:bg-[#3F1203] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Logging in..." : "Login"}
+            {isPending ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        {/* Footer */}
+        {/* Footer Navigation */}
         <p className="mt-6 text-center text-sm text-gray-500">
           Don’t have an account?{" "}
           <Link

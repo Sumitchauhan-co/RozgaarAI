@@ -330,3 +330,17 @@ export const verifyEmailService = async (token: string) => {
   }
   return { user: updatedUser };
 };
+
+export const getUserService = async (userId: string) => {
+  const [result] = await db
+    .select(userPublicColumns)
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
+
+  if (!result) {
+    throw ApiError.notFound("User not found");
+  }
+
+  return result;
+};
