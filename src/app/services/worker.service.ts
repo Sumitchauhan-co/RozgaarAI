@@ -13,7 +13,7 @@ export const saveWorkerProfileService = async (
   user: UserContext
 ) => {
   if (!Array.isArray(profession) || profession.length === 0 || !city || !age) {
-    throw ApiError.notFound("Missing fields for recruiter profile");
+    throw ApiError.notFound("Missing fields for worker profile");
   }
 
   const [newWorker] = await db

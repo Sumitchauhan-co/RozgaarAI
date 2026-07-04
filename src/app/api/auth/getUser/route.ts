@@ -13,16 +13,18 @@ export const GET = authenticate(
       const user = context.user;
 
       if (!user) {
-        throw ApiError.notFound("User not found");
+        return handleApiError(ApiError.unauthorized("Unauthorized access"));
       }
 
       const res = await getUserService(user.id);
-
       return ApiResponse.ok("User fetched successfully", res);
     } catch (error) {
       console.error(error);
-
-      return handleApiError(ApiError.internal("Internal server error", error));
+      return handleApiError(
+        error instanceof ApiError
+          ? error
+          : ApiError.internal("Internal server error", error)
+      );
     }
   }
 );
