@@ -253,7 +253,8 @@ export const forgotPasswordService = async (email: string) => {
       .where(eq(usersTable.email, email));
   });
 
-  const resetURL = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const resetURL = `${baseUrl}/reset-password?token=${token}`;
 
   // nodemailer logic
 
