@@ -4,7 +4,7 @@ import { db } from "../db";
 import { userPublicColumns, usersTable } from "../db/auth.schema";
 import { UserRole } from "../models/auth.model";
 import ApiError from "../utils/apiError";
-import { transporter } from "../utils/mail";
+import { getTransporter } from "../utils/mail";
 import {
   compareUserPassword,
   generateAccessToken,
@@ -85,6 +85,8 @@ export const signupService = async ({
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const resetURL = `${baseUrl}/resetPassword?token=${token}`;
+
+    const transporter = getTransporter();
 
     try {
       const info = await transporter.sendMail({
@@ -260,6 +262,8 @@ export const forgotPasswordService = async (email: string) => {
   const resetURL = `${baseUrl}/resetPassword?token=${token}`;
 
   // nodemailer logic
+
+  const transporter = getTransporter();
 
   try {
     const info = await transporter.sendMail({
