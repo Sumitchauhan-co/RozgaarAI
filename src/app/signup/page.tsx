@@ -5,10 +5,10 @@ import { BriefcaseBusiness, Lock, Mail, Sparkles, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { setAccessToken, useAuthStore } from "../store/store";
+import { useAuthStore } from "../store/store";
 
 export default function SignupPage() {
-  const [role, setRole] = useState<"worker" | "employer">("worker");
+  const [role, setRole] = useState<"worker" | "recruiter">("worker");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const { setAuthenticated } = useAuthStore();
@@ -35,8 +35,7 @@ export default function SignupPage() {
       const token = res?.data?.accessToken;
 
       if (token) {
-        setAccessToken(token);
-        setAuthenticated(true);
+        setAuthenticated(true, token);
         targetForm.reset();
         router.push("/");
       } else {
@@ -80,14 +79,14 @@ export default function SignupPage() {
             <button
               type="button"
               disabled={isPending}
-              onClick={() => setRole("employer")}
+              onClick={() => setRole("recruiter")}
               className={`flex items-center justify-center gap-2 rounded-2xl border p-4 font-semibold transition ${
-                role === "employer"
+                role === "recruiter"
                   ? "border-[#5B1E05] bg-[#5B1E05] text-white"
                   : "border-gray-200 bg-white text-[#5B1E05] hover:bg-gray-50"
               } disabled:cursor-not-allowed disabled:opacity-50`}
             >
-              <BriefcaseBusiness size={18} /> Employer
+              <BriefcaseBusiness size={18} /> Recruiter
             </button>
           </div>
         </div>

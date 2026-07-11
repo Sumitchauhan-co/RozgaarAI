@@ -3,15 +3,17 @@ import {
   recruiterModel,
   recruiterUpdateModel,
 } from "@/app/models/recruiter.model";
+import { cookieOptions } from "@/app/services/auth.service";
 import {
   deleteRecruiterService,
-  fetchAllRecruiterService,
+  fetchRecruiterService,
   saveRecruiterProfileService,
   updateRecruiterProfileService,
 } from "@/app/services/recruiter.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { validateBody } from "@/app/utils/validate";
+import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export const POST = authenticate(async (req: NextRequest, context) => {
@@ -30,6 +32,8 @@ export const POST = authenticate(async (req: NextRequest, context) => {
       }
 
       const recruiter = await saveRecruiterProfileService(data, user);
+      const cookieStore = await cookies();
+      cookieStore.set("recruiterId", recruiter.id, cookieOptions);
 
       return ApiResponse.created(
         "Recruiter profile created successfully",
@@ -55,7 +59,7 @@ export const GET = authenticate(async (req, context) => {
       throw ApiError.notFound("User not found");
     }
 
-    const recruiters = await fetchAllRecruiterService(user);
+    const recruiters = await fetchRecruiterService(user);
 
     return ApiResponse.ok(
       "Fetched all recruiters profile successfully",
@@ -88,6 +92,8 @@ export const PATCH = authenticate(async (req: NextRequest, context) => {
       }
 
       const recruiter = await updateRecruiterProfileService(data, user);
+      const cookieStore = await cookies();
+      cookieStore.set("recruiterId", recruiter?.id ?? "", cookieOptions);
 
       return ApiResponse.ok("Update recruiter fields successfully", recruiter);
     } catch (error) {

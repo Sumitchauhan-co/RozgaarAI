@@ -29,8 +29,8 @@ export const saveWorkerProfileService = async (
   return newWorker;
 };
 
-export const fetchAllWorkerService = async (user: UserContext) => {
-  const result = await db
+export const fetchWorkerService = async (user: UserContext) => {
+  const [result] = await db
     .select()
     .from(workersTable)
     .where(eq(workersTable.userId, user.id));

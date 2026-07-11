@@ -5,7 +5,7 @@ import { ArrowLeft, Lock, Mail, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { setAccessToken, useAuthStore } from "../store/store";
+import { useAuthStore } from "../store/store";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
@@ -31,15 +31,25 @@ export default function LoginPage() {
 
       const token = res.data.accessToken;
 
-      setAccessToken(token);
-      setAuthenticated(true);
+      setAuthenticated(true, token);
       targetForm.reset();
 
-      if (typeof window !== "undefined") {
-        sessionStorage.removeItem("session_checked");
-      }
+      const role = res.data?.role;
+      const workerId = res.data?.workerId ?? null;
+      const recruiterId = res.data?.recruiterId ?? null;
 
-      router.push("/");
+      const redirectPath =
+        role === "worker"
+          ? workerId
+            ? "/applications/workers"
+            : "/profile"
+          : role === "recruiter"
+            ? recruiterId
+              ? "/applications/recruiters"
+              : "/profile"
+            : "/";
+
+      router.push(redirectPath);
     });
   };
 

@@ -64,6 +64,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         setAccessToken(null);
+
         if (typeof window !== "undefined") {
           window.location.href = "/";
         }
