@@ -1,5 +1,5 @@
 import { usersTable } from "@/app/db/auth.schema";
-import { db } from "@/app/db/index";
+import { getDb } from "@/app/db/index";
 import apiError, { handleApiError } from "@/app/utils/apiError";
 import { tokenPayload, verifyAccessToken } from "@/app/utils/token";
 import { eq } from "drizzle-orm";
@@ -39,6 +39,8 @@ export const authenticate = <T>(handler: AuthenticatedHandler<T>) => {
       }
 
       const decoded = (await verifyAccessToken(token)) as tokenPayload;
+
+      const db = getDb();
 
       const [user] = await db
         .select({

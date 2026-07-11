@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "../db";
+import { getDb } from "../db";
 import { usersTable } from "../db/auth.schema";
 import { workersTable } from "../db/worker.schema";
 import { workerApplicationsTable } from "../db/workerApplication.schema";
@@ -28,6 +28,8 @@ export const saveWorkerApplicationService = async (
       "You do not have access to manage this profile context."
     );
   }
+
+  const db = getDb();
 
   const [userData] = await db
     .select({
@@ -84,6 +86,8 @@ export const getWorkerApplicationService = async (
     );
   }
 
+  const db = getDb();
+
   const applications = await db
     .select()
     .from(workerApplicationsTable)
@@ -98,6 +102,8 @@ export const getAllWorkerApplicationService = async (user: tokenPayload) => {
       "You do not have access to view this profile application."
     );
   }
+
+  const db = getDb();
 
   const applications = await db.select().from(workerApplicationsTable);
 
@@ -115,6 +121,8 @@ export const updateWorkerApplicationService = async (
       "You do not have access to edit this profile application."
     );
   }
+
+  const db = getDb();
 
   const [updatedApplication] = await db
     .update(workerApplicationsTable)
@@ -151,6 +159,8 @@ export const deleteWorkerApplicationService = async (
     );
   }
 
+  const db = getDb();
+
   const result = await db
     .delete(workerApplicationsTable)
     .where(
@@ -180,6 +190,8 @@ export const getSingleWorkerApplicationService = async (
       "You do not have access to view this profile application."
     );
   }
+
+  const db = getDb();
 
   const [application] = await db
     .select()
