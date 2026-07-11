@@ -1,5 +1,4 @@
 import { and, eq, gt, sql } from "drizzle-orm";
-import nodemailer from "nodemailer";
 import { db } from "../db";
 import { userPublicColumns, usersTable } from "../db/auth.schema";
 import { UserRole } from "../models/auth.model";
@@ -254,7 +253,7 @@ export const forgotPasswordService = async (email: string) => {
   });
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const resetURL = `${baseUrl}/reset-password?token=${token}`;
+  const resetURL = `${baseUrl}/resetPassword?token=${token}`;
 
   // nodemailer logic
 
@@ -266,8 +265,8 @@ export const forgotPasswordService = async (email: string) => {
       html: `<p>You can reset your password from the link : <a href="${resetURL}">Reset Pasword</a></p><br><p><b>NOTE : </b>Link is valid for 5 mins.</p>`,
     });
 
-    console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    // console.log("Message sent: %s", info.messageId);
+    // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   } catch (err) {
     console.error("Error while sending mail:", err);
   }
