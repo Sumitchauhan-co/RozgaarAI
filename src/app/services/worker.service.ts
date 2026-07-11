@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
+import { getDb } from "../db";
 import { workersTable } from "../db/worker.schema";
 import { UpdateWorker, Worker } from "../models/worker.model";
 import ApiError from "../utils/apiError";
@@ -16,6 +16,8 @@ export const saveWorkerProfileService = async (
     throw ApiError.notFound("Missing fields for worker profile");
   }
 
+  const db = getDb();
+
   const [newWorker] = await db
     .insert(workersTable)
     .values({
@@ -30,6 +32,8 @@ export const saveWorkerProfileService = async (
 };
 
 export const fetchWorkerService = async (user: UserContext) => {
+  const db = getDb();
+
   const [result] = await db
     .select()
     .from(workersTable)
@@ -42,6 +46,8 @@ export const updateWorkerProfileService = async (
   data: UpdateWorker,
   user: UserContext
 ) => {
+  const db = getDb();
+
   const [updatedRecords] = await db
     .update(workersTable)
     .set(data)
@@ -52,5 +58,7 @@ export const updateWorkerProfileService = async (
 };
 
 export const deleteWorkerService = async (user: UserContext) => {
+  const db = getDb();
+
   await db.delete(workersTable).where(eq(workersTable.userId, user.id));
 };

@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "../db";
+import { getDb } from "../db";
 import { usersTable } from "../db/auth.schema";
 import { recruiterApplicationsTable } from "../db/recruiterApplication.schema";
 import ApiError from "../utils/apiError";
@@ -28,6 +28,8 @@ export const saveRecruiterApplicationService = async (
       "You do not have access to manage this profile context."
     );
   }
+
+  const db = getDb();
 
   const [userData] = await db
     .select({
@@ -82,6 +84,8 @@ export const getRecruiterApplicationsService = async (
     );
   }
 
+  const db = getDb();
+
   const applications = await db
     .select()
     .from(recruiterApplicationsTable)
@@ -99,6 +103,8 @@ export const getAllRecruiterApplicationsService = async (
     );
   }
 
+  const db = getDb();
+
   const applications = await db.select().from(recruiterApplicationsTable);
 
   return applications;
@@ -115,6 +121,8 @@ export const updateRecruiterApplicationService = async (
       "You do not have access to edit this profile application."
     );
   }
+
+  const db = getDb();
 
   const [updatedApplication] = await db
     .update(recruiterApplicationsTable)
@@ -149,6 +157,8 @@ export const deleteRecruiterApplicationService = async (
     );
   }
 
+  const db = getDb();
+
   const result = await db
     .delete(recruiterApplicationsTable)
     .where(
@@ -178,6 +188,8 @@ export const getSingleRecruiterApplicationService = async (
       "You do not have access to view this profile application."
     );
   }
+
+  const db = getDb();
 
   const [application] = await db
     .select()

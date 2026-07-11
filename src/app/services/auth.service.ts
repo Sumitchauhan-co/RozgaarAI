@@ -1,6 +1,6 @@
 import { and, eq, gt, sql } from "drizzle-orm";
 import nodemailer from "nodemailer";
-import { db } from "../db";
+import { getDb } from "../db";
 import { userPublicColumns, usersTable } from "../db/auth.schema";
 import { UserRole } from "../models/auth.model";
 import ApiError from "../utils/apiError";
@@ -35,6 +35,8 @@ export const signupService = async ({
   email: string;
   password: string;
 }) => {
+  const db = getDb();
+
   const existingUser = await db
     .select()
     .from(usersTable)
@@ -117,6 +119,8 @@ export const signinService = async ({
   email: string;
   password: string;
 }) => {
+  const db = getDb();
+
   const [user] = await db
     .select()
     .from(usersTable)
@@ -170,6 +174,8 @@ export const signinService = async ({
 };
 
 export const signoutService = async (user: { id: string; role: string }) => {
+  const db = getDb();
+
   await db
     .update(usersTable)
     .set({ refreshToken: null })
@@ -185,6 +191,8 @@ export const refreshService = async (refreshToken: string) => {
   if (!decoded || !decoded.id) {
     throw ApiError.unauthorized("Invalid refresh token");
   }
+
+  const db = getDb();
 
   const [user] = await db
     .select(userPublicColumns)
@@ -224,6 +232,8 @@ export const refreshService = async (refreshToken: string) => {
 };
 
 export const profileService = async (userId: string) => {
+  const db = getDb();
+
   const [user] = await db
     .select(userPublicColumns)
     .from(usersTable)
@@ -237,6 +247,7 @@ export const profileService = async (userId: string) => {
 };
 
 export const forgotPasswordService = async (email: string) => {
+  const db = getDb();
   const { token, hashedToken } = await generateToken();
 
   await db.transaction(async tx => {
@@ -289,6 +300,7 @@ export const resetPasswordService = async ({
   token: string;
   newPassword: string;
 }) => {
+  const db = getDb();
   const hashedToken = await generateHashedToken(token);
 
   const [user] = await db
@@ -322,6 +334,7 @@ export const resetPasswordService = async ({
 };
 
 export const verifyEmailService = async (token: string) => {
+  const db = getDb();
   const hashToken = await generateHashedToken(token);
 
   const [updatedUser] = await db
@@ -340,6 +353,8 @@ export const verifyEmailService = async (token: string) => {
 };
 
 export const getUserService = async (userId: string) => {
+  const db = getDb();
+
   const [result] = await db
     .select(userPublicColumns)
     .from(usersTable)
