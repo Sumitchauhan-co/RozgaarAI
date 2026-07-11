@@ -7,7 +7,6 @@
     "build": "next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit push",
-    "prestart": "npm run db:migrate",
     "start": "next start",
     "lint": "eslint",
     "studio": "drizzle-kit studio"
