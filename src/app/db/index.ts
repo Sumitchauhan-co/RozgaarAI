@@ -9,10 +9,12 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export const getDb = () => {
   if (_db) return _db as ReturnType<typeof drizzle>;
 
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
+  const rawDatabaseUrl = process.env.DATABASE_URL;
+  if (!rawDatabaseUrl) {
     throw new Error("DATABASE_URL environment variable is missing.");
   }
+
+  const databaseUrl = rawDatabaseUrl.replace(/^"|"$/g, "");
 
   client = postgres(databaseUrl, { prepare: false });
   _db = drizzle(client, { schema });
