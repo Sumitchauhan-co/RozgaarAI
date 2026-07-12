@@ -1,14 +1,16 @@
 import { authenticate } from "@/app/middlewares/authenticate";
 import { workerModel, workerUpdateModel } from "@/app/models/worker.model";
+import { cookieOptions } from "@/app/services/auth.service";
 import {
   deleteWorkerService,
-  fetchAllWorkerService,
+  fetchWorkerService,
   saveWorkerProfileService,
   updateWorkerProfileService,
 } from "@/app/services/worker.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { validateBody } from "@/app/utils/validate";
+import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export const POST = authenticate(async (req: NextRequest, context) => {
@@ -27,6 +29,8 @@ export const POST = authenticate(async (req: NextRequest, context) => {
       }
 
       const worker = await saveWorkerProfileService(data, user);
+      const cookieStore = await cookies();
+      cookieStore.set("workerId", worker.id, cookieOptions);
 
       return ApiResponse.created("Worker profile created successfully", worker);
     } catch (error) {
@@ -49,7 +53,7 @@ export const GET = authenticate(async (req, context) => {
       throw ApiError.notFound("User not found");
     }
 
-    const workers = await fetchAllWorkerService(user);
+    const workers = await fetchWorkerService(user);
 
     return ApiResponse.ok("Fetched all workers profile successfully", workers);
   } catch (error) {
@@ -79,6 +83,8 @@ export const PATCH = authenticate(async (req: NextRequest, context) => {
       }
 
       const worker = await updateWorkerProfileService(data, user);
+      const cookieStore = await cookies();
+      cookieStore.set("workerId", worker?.id ?? "", cookieOptions);
 
       return ApiResponse.ok("Update worker fields successfully", worker);
     } catch (error) {

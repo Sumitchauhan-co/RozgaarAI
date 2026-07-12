@@ -1,6 +1,7 @@
 "use client";
 
-import { BriefcaseBusiness, Menu, PlusCircle, X } from "lucide-react";
+import { Menu, PlusCircle, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useAuthStore } from "../store/store";
@@ -14,13 +15,14 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="rounded-xl bg-[#F5E7DA] p-2">
-            <BriefcaseBusiness className="text-[#8F3E13]" />
-          </div>
-
-          <span className="text-xl font-black text-[#2B0F05]">
-            Rozgaar<span className="text-[#8F3E13]">AI</span>
-          </span>
+          <Image
+            src="/images/logo.png"
+            alt="RozgaarAI Logo"
+            width={140}
+            height={40}
+            className="object-contain"
+            priority
+          />
         </Link>
 
         {/* DESKTOP NAV */}
@@ -46,7 +48,7 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           <Link
             href="/post-job"
-            className="flex items-center gap-2 rounded-xl bg-[#5B1E05] px-4 py-2 text-white hover:bg-[#3f1203]"
+            className="flex items-center gap-2 rounded-xl bg-[#5B1E05] px-4 py-2 text-white transition hover:bg-[#3f1203]"
           >
             <PlusCircle size={16} />
             Post Job
@@ -82,38 +84,57 @@ export default function Navbar() {
       {/* MOBILE MENU */}
       {open && (
         <div className="space-y-4 border-t bg-white px-6 py-4 md:hidden">
-          <Link onClick={() => setOpen(false)} href="/">
-            Home
-          </Link>
-          <Link onClick={() => setOpen(false)} href="/jobs">
-            Jobs
-          </Link>
-          <Link onClick={() => setOpen(false)} href="/dashboard">
-            Dashboard
-          </Link>
-          <Link onClick={() => setOpen(false)} href="/applications">
-            Applications
-          </Link>
-          <Link onClick={() => setOpen(false)} href="/ai-assistant">
-            AI Assistant
-          </Link>
+          <div className="sticky top-0 z-50 border-b border-[#F2E3D8] bg-white/80 backdrop-blur-md">
+            <Link href="/" className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]">
+              Home
+            </Link>
 
+            <Link
+              href="/jobs"
+              className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]"
+            >
+              Jobs
+            </Link>
+
+            <Link
+              href="/dashboard"
+              className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]"
+            >
+              Dashboard
+            </Link>
+
+            <Link
+              href="/applications"
+              className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]"
+            >
+              Applications
+            </Link>
+
+            <Link
+              href="/assistant"
+              className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]"
+            >
+              AI Assistant
+            </Link>
+          </div>
           <div className="space-y-3 border-t pt-4">
-            <Link
-              onClick={() => setOpen(false)}
-              href="/post-job"
-              className="block rounded-xl bg-[#5B1E05] py-2 text-center text-white"
-            >
-              Post Job
-            </Link>
+            <div className="space-y-3 border-t pt-4">
+              <Link
+                onClick={() => setOpen(false)}
+                href="/post-job"
+                className="block rounded-xl bg-[#5B1E05] py-2 text-center text-white"
+              >
+                Post Job
+              </Link>
 
-            <Link
-              onClick={() => setOpen(false)}
-              href="/login"
-              className="block rounded-xl border py-2 text-center"
-            >
-              Login
-            </Link>
+              <Link
+                onClick={() => setOpen(false)}
+                href="/login"
+                className="block rounded-xl border py-2 text-center"
+              >
+                Login
+              </Link>
+            </div>
           </div>
         </div>
       )}

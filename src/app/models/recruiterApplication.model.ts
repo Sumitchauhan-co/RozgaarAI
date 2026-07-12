@@ -7,19 +7,7 @@ export const applicationStatusEnum = z.enum([
   "rejected",
 ]);
 
-export const recruiterApplicationModel = z.object({
-  firstName: z
-    .string()
-    .min(2, "First name must be at least 2 characters")
-    .max(255, "First name cannot exceed 255 characters")
-    .trim(),
-
-  lastName: z
-    .string()
-    .max(255, "Last name cannot exceed 255 characters")
-    .trim()
-    .nullish(),
-
+export const recruiterApplicationSchema = z.object({
   salary: z
     .number()
     .positive("Salary must be a positive number")
@@ -28,9 +16,9 @@ export const recruiterApplicationModel = z.object({
 
   currency: z
     .string()
-    .length(3, "Currency must be a 3-letter ISO code (e.g., USD)")
+    .length(3, "Currency must be a 3-letter ISO code (e.g., INR)")
     .toUpperCase()
-    .default("USD"),
+    .default("INR"),
 
   payPeriod: payPeriodEnum.default("yearly"),
 
@@ -72,4 +60,11 @@ export const recruiterApplicationModel = z.object({
     .nullish(),
 });
 
-export type RecruiterApplication = z.infer<typeof recruiterApplicationModel>;
+export const recruiterApplicationUpdateSchema = recruiterApplicationSchema
+  .partial()
+  .extend({
+    status: applicationStatusEnum.optional(),
+  });
+
+export const recruiterApplicationModel = recruiterApplicationSchema;
+export type RecruiterApplication = z.infer<typeof recruiterApplicationSchema>;

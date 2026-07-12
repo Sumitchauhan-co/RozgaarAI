@@ -1,10 +1,10 @@
 import { and, eq, gt, sql } from "drizzle-orm";
 import nodemailer from "nodemailer";
-import { db } from "../db";
+import { getDb } from "../db";
 import { userPublicColumns, usersTable } from "../db/auth.schema";
 import { UserRole } from "../models/auth.model";
 import ApiError from "../utils/apiError";
-import { transporter } from "../utils/mail";
+import { getTransporter } from "../utils/mail";
 import {
   compareUserPassword,
   generateAccessToken,
@@ -14,6 +14,7 @@ import {
   generateToken,
   verifyRefreshToken,
 } from "../utils/token";
+import { id } from "zod/v4/locales";
 
 export const cookieOptions = {
   httpOnly: true,
@@ -35,6 +36,8 @@ export const signupService = async ({
   email: string;
   password: string;
 }) => {
+  const db = getDb();
+
   const existingUser = await db
     .select()
     .from(usersTable)
@@ -83,18 +86,23 @@ export const signupService = async ({
 
     const { hashedToken, token } = await generateToken();
 
-    // try {
-    //     const info = await transporter.sendMail({
-    //         to: user.email,
-    //         subject: 'Verify your email',
-    //         html: `<a href="http://localhost:3000/verify-email?token=${token}">Verify Email</a>`,
-    //     });
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const resetURL = `${baseUrl}/resetPassword?token=${token}`;
 
-    //     console.log('Message sent: %s', info.messageId);
-    //     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-    // } catch (err) {
-    //     console.error('Error while sending mail:', err);
-    // }
+    const transporter = getTransporter();
+
+    try {
+      const info = await transporter.sendMail({
+        to: user.email,
+        subject: "Verify your email",
+        html: `<a href="${resetURL}/verify-email?token=${token}">Verify Email</a>`,
+      });
+
+      console.log("Message sent: %s", info.messageId);
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    } catch (err) {
+      console.error("Error while sending mail:", err);
+    }
 
     await tx
       .update(usersTable)
@@ -112,6 +120,8 @@ export const signinService = async ({
   email: string;
   password: string;
 }) => {
+  const db = getDb();
+
   const [user] = await db
     .select()
     .from(usersTable)
@@ -165,6 +175,8 @@ export const signinService = async ({
 };
 
 export const signoutService = async (user: { id: string; role: string }) => {
+  const db = getDb();
+
   await db
     .update(usersTable)
     .set({ refreshToken: null })
@@ -180,6 +192,8 @@ export const refreshService = async (refreshToken: string) => {
   if (!decoded || !decoded.id) {
     throw ApiError.unauthorized("Invalid refresh token");
   }
+
+  const db = getDb();
 
   const [user] = await db
     .select(userPublicColumns)
@@ -219,6 +233,8 @@ export const refreshService = async (refreshToken: string) => {
 };
 
 export const profileService = async (userId: string) => {
+  const db = getDb();
+
   const [user] = await db
     .select(userPublicColumns)
     .from(usersTable)
@@ -232,6 +248,7 @@ export const profileService = async (userId: string) => {
 };
 
 export const forgotPasswordService = async (email: string) => {
+  const db = getDb();
   const { token, hashedToken } = await generateToken();
 
   await db.transaction(async tx => {
@@ -253,9 +270,12 @@ export const forgotPasswordService = async (email: string) => {
       .where(eq(usersTable.email, email));
   });
 
-  const resetURL = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const resetURL = `${baseUrl}/resetPassword?token=${token}`;
 
   // nodemailer logic
+
+  const transporter = getTransporter();
 
   try {
     const info = await transporter.sendMail({
@@ -281,6 +301,7 @@ export const resetPasswordService = async ({
   token: string;
   newPassword: string;
 }) => {
+  const db = getDb();
   const hashedToken = await generateHashedToken(token);
 
   const [user] = await db
@@ -314,6 +335,7 @@ export const resetPasswordService = async ({
 };
 
 export const verifyEmailService = async (token: string) => {
+  const db = getDb();
   const hashToken = await generateHashedToken(token);
 
   const [updatedUser] = await db
@@ -332,6 +354,8 @@ export const verifyEmailService = async (token: string) => {
 };
 
 export const getUserService = async (userId: string) => {
+  const db = getDb();
+
   const [result] = await db
     .select(userPublicColumns)
     .from(usersTable)

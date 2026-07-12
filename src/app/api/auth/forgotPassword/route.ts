@@ -1,4 +1,3 @@
-import { forgotPasswordService } from "@/app/services/auth.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { NextRequest } from "next/server";
@@ -12,6 +11,8 @@ export const POST = async (req: NextRequest) => {
       throw ApiError.notFound("Email not found");
     }
 
+    const { forgotPasswordService } =
+      await import("@/app/services/auth.service");
     await forgotPasswordService(email);
 
     return ApiResponse.ok("Email sent successfully to the existing account");

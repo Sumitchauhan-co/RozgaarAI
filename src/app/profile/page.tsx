@@ -16,15 +16,33 @@ import { useEffect, useState } from "react";
 import api from "../utils/api";
 
 interface WorkerProfile {
+  id: string | null;
   age: string;
   city: string;
   profession: string[];
 }
 
 interface RecruiterProfile {
+  id: string | null;
   companyName: string;
   city: string;
   industry: string;
+}
+
+interface WorkerApplicationItem {
+  id: string;
+  workerId: string;
+  companyName: string;
+  city: string;
+  country: string;
+  industry: string | null;
+  locality: string | null;
+  salaryExpectation: number | null;
+  currency: string;
+  payPeriod: "hourly" | "monthly" | "yearly";
+  phone: string | null;
+  status: "pending" | "rejected" | "accepted";
+  createdAt: string;
 }
 
 type ProfileFormData = Partial<WorkerProfile & RecruiterProfile> & {
@@ -46,7 +64,8 @@ interface ApiResponse<T> {
 }
 
 export default function ProfilePage() {
-  const { isAuthenticated } = useAuthStore();
+  const { setRecruiterId, setWorkerId, isAuthenticated, workerId } =
+    useAuthStore();
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -56,6 +75,8 @@ export default function ProfilePage() {
 
   const [formData, setFormData] = useState<ProfileFormData>({});
   const [user, setUser] = useState<UserSession | null>(null);
+  const [applications, setApplications] = useState<WorkerApplicationItem[]>([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(false);
 
   const role = user?.role;
   const apiEndpoint =
@@ -73,7 +94,6 @@ export default function ProfilePage() {
         const response =
           await api.get<ApiResponse<UserSession>>("/api/auth/getUser");
 
-        console.log(response);
         if (response.data?.success && response.data?.data) {
           setUser(response.data.data);
         } else {
@@ -94,12 +114,11 @@ export default function ProfilePage() {
       try {
         setLoading(true);
         const response =
-          await api.get<ApiResponse<ProfileFormData | ProfileFormData[]>>(
-            apiEndpoint
-          );
+          await api.get<ApiResponse<ProfileFormData>>(apiEndpoint);
 
         if (response.data?.success && response.data?.data) {
           const rawData = response.data.data;
+
           const profileData = Array.isArray(rawData) ? rawData[0] : rawData;
 
           if (profileData && Object.keys(profileData).length > 0) {
@@ -108,6 +127,9 @@ export default function ProfilePage() {
             }
             setFormData(profileData);
             setProfileExists(true);
+
+            if (role == "worker") setWorkerId(response.data.data.id);
+            if (role == "recruiter") setRecruiterId(response.data.data.id);
             return;
           }
         }
@@ -126,7 +148,39 @@ export default function ProfilePage() {
     };
 
     fetchProfileData();
-  }, [apiEndpoint, isAuthenticated, role]);
+  }, [apiEndpoint, isAuthenticated, role, setWorkerId, setRecruiterId]);
+
+  useEffect(() => {
+    if (!isAuthenticated || role !== "worker" || !workerId) {
+      setApplications([]);
+      return;
+    }
+
+    const fetchApplications = async () => {
+      try {
+        setApplicationsLoading(true);
+        const response = await api.get<ApiResponse<WorkerApplicationItem[]>>(
+          `/api/worker/application/${workerId}`
+        );
+
+        if (response.data?.success) {
+          const data = Array.isArray(response.data.data)
+            ? response.data.data
+            : [];
+          setApplications(data);
+        } else {
+          setApplications([]);
+        }
+      } catch (err) {
+        console.error("Failed to load applications:", err);
+        setApplications([]);
+      } finally {
+        setApplicationsLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [isAuthenticated, role, workerId]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -500,6 +554,81 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
+
+        {role === "worker" && (
+          <section className="mt-8 rounded-2xl border border-[#ECE3DA] bg-[#FCFBF9] p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-[#55463E]">
+                  Your Applications
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Review your submitted applications from your worker profile.
+                </p>
+              </div>
+              {applicationsLoading && (
+                <Loader2 className="h-5 w-5 animate-spin text-[#5B1E05]" />
+              )}
+            </div>
+
+            {applicationsLoading && applications.length === 0 ? (
+              <div className="mt-5 rounded-xl border border-dashed border-[#ECE3DA] bg-white px-4 py-6 text-center text-sm text-gray-500">
+                Loading applications...
+              </div>
+            ) : applications.length === 0 ? (
+              <div className="mt-5 rounded-xl border border-dashed border-[#ECE3DA] bg-white px-4 py-6 text-center text-sm text-gray-500">
+                No applications found yet.
+              </div>
+            ) : (
+              <div className="mt-5 space-y-3">
+                {applications.map(application => (
+                  <div
+                    key={application.id}
+                    className="rounded-xl border border-[#ECE3DA] bg-white p-4"
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-base font-semibold text-[#55463E]">
+                          {application.companyName}
+                        </p>
+                        <p className="mt-1 text-sm text-gray-500">
+                          {application.locality
+                            ? `${application.locality}, `
+                            : ""}
+                          {application.city}, {application.country}
+                        </p>
+                        {application.industry && (
+                          <p className="mt-1 text-sm text-gray-500">
+                            {application.industry}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-start gap-2 sm:items-end">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                            application.status === "accepted"
+                              ? "bg-green-100 text-green-700"
+                              : application.status === "rejected"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {application.status}
+                        </span>
+                        {application.salaryExpectation && (
+                          <span className="text-sm font-medium text-[#5B1E05]">
+                            {application.salaryExpectation.toLocaleString()}{" "}
+                            {application.currency} / {application.payPeriod}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </main>
   );

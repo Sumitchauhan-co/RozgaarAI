@@ -7,7 +7,6 @@
     "build": "next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit push",
-    "prestart": "npm run db:migrate",
     "start": "next start",
     "lint": "eslint",
     "studio": "drizzle-kit studio"
@@ -22,6 +21,7 @@
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.42.0",
     "jsonwebtoken": "^9.0.3",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
     "nodemailer": "^9.0.1",

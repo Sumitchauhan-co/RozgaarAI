@@ -6,15 +6,33 @@ import { User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const links = [
+const baseLinks = [
   { title: "Home", href: "/" },
   { title: "Find Work", href: "/jobs" },
   { title: "Hire", href: "/hire" },
+  { title: "Applications", href: "/applications" },
   { title: "About", href: "#" },
 ];
 
 export default function Navbar() {
-  const { isAuthenticated, clearAuth } = useAuthStore();
+  const { isAuthenticated, role, workerId, recruiterId, clearAuth } =
+    useAuthStore();
+
+  const applicationsHref = !isAuthenticated
+    ? "/login"
+    : role === "worker"
+      ? workerId
+        ? "/applications/workers"
+        : "/profile"
+      : role === "recruiter"
+        ? recruiterId
+          ? "/applications/recruiters"
+          : "/profile"
+        : "/profile";
+
+  const links = baseLinks.map(link =>
+    link.title === "Applications" ? { ...link, href: applicationsHref } : link
+  );
 
   const handleSignOut = async () => {
     const res = await signOutAction();
@@ -54,13 +72,21 @@ export default function Navbar() {
         {/* Right Side */}
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="rounded-xl border px-4 py-2 text-sm font-semibold text-[#5B1E05] hover:bg-[#F8ECE4]"
-            >
-              Signout
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="rounded-xl border px-4 py-2 text-sm font-semibold text-[#5B1E05] hover:bg-[#F8ECE4]"
+              >
+                Signout
+              </button>
+              <Link
+                href="/profile"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ECE3DA]/50 transition-colors hover:bg-[#ECE3DA]"
+              >
+                <User size={20} className="text-[#5B1E05]" />
+              </Link>
+            </>
           ) : (
             <>
               <Link
@@ -77,12 +103,6 @@ export default function Navbar() {
           >
             Get Started
           </Link> */}
-          <Link
-            href="/profile"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ECE3DA]/50 transition-colors hover:bg-[#ECE3DA]"
-          >
-            <User size={20} className="text-[#5B1E05]" />
-          </Link>
         </div>
       </div>
     </header>
