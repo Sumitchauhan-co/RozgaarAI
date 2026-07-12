@@ -6,7 +6,7 @@ import { User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const baseLinks = [
+const links = [
   { title: "Home", href: "/" },
   { title: "Find Work", href: "/jobs" },
   { title: "Hire", href: "/hire" },
@@ -15,24 +15,7 @@ const baseLinks = [
 ];
 
 export default function Navbar() {
-  const { isAuthenticated, role, workerId, recruiterId, clearAuth } =
-    useAuthStore();
-
-  const applicationsHref = !isAuthenticated
-    ? "/login"
-    : role === "worker"
-      ? workerId
-        ? "/applications/workers"
-        : "/profile"
-      : role === "recruiter"
-        ? recruiterId
-          ? "/applications/recruiters"
-          : "/profile"
-        : "/profile";
-
-  const links = baseLinks.map(link =>
-    link.title === "Applications" ? { ...link, href: applicationsHref } : link
-  );
+  const { isAuthenticated, clearAuth } = useAuthStore();
 
   const handleSignOut = async () => {
     const res = await signOutAction();

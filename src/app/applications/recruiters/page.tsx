@@ -130,7 +130,7 @@ export default function RecruiterApplicationsPage() {
       locality: formData.locality.trim() || null,
       salary: formData.salary ? Number(formData.salary) : null,
       currency: formData.currency.trim().toUpperCase() || "INR",
-      payPeriod: formData.payPeriod,
+      payPeriod: formData.payPeriod as "hourly" | "monthly" | "yearly",
       phone: formData.phone.trim() || null,
     };
 
@@ -239,7 +239,7 @@ export default function RecruiterApplicationsPage() {
 
   return (
     <main className="relative min-h-screen bg-[#FCF8F4]">
-      <section className="bg-linear-to-r from-[#5B1E05] to-[#8F3E13] py-12">
+      <section className="bg-gradient-to-r from-[#5B1E05] to-[#8F3E13] py-12">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 px-6 sm:flex-row sm:items-center lg:px-10">
           <div className="flex items-center gap-4">
             <div className="rounded-2xl bg-white/20 p-4">

@@ -1,48 +1,62 @@
 "use client";
 
 import { signUpAction } from "@/app/actions/auth";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { BriefcaseBusiness, Lock, Mail, Sparkles, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useActionState, useState } from "react";
+import { signupModel } from "../models/auth.model";
 import { useAuthStore } from "../store/store";
 
 export default function SignupPage() {
   const [role, setRole] = useState<"worker" | "recruiter">("worker");
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const { setAuthenticated } = useAuthStore();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
+  const [lastResult, action, isPending] = useActionState(
+    async (prevState: unknown, formData: FormData) => {
+      formData.set("role", role);
 
-    const formData = new FormData(e.currentTarget);
-    formData.append("role", role);
+      const submission = parseWithZod(formData, { schema: signupModel });
+      if (submission.status !== "success") {
+        return submission.reply();
+      }
 
-    const targetForm = e.currentTarget;
-
-    startTransition(async () => {
       const res = await signUpAction(formData);
 
       if (res?.error) {
-        setError(res.error);
-        return;
+        return submission.reply({
+          formErrors: [res.error],
+        });
       }
 
-      console.log(res);
       const token = res?.data?.accessToken;
 
       if (token) {
         setAuthenticated(true, token);
-        targetForm.reset();
         router.push("/");
       } else {
-        setError("Authentication failed. No token received.");
+        return submission.reply({
+          formErrors: ["Authentication failed. No token received."],
+        });
       }
-    });
-  };
+
+      return submission.reply();
+    },
+    undefined
+  );
+
+  const [form, fields] = useForm({
+    lastResult,
+    onValidate({ formData }) {
+      formData.set("role", role);
+      return parseWithZod(formData, { schema: signupModel });
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+  });
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#FCF8F4] px-4 py-8">
@@ -92,79 +106,99 @@ export default function SignupPage() {
         </div>
 
         {/* Form Container */}
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form
+          {...getFormProps(form)}
+          action={action}
+          className="mt-6 space-y-4"
+        >
           {/* First Name & Last Name Input Group */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
-              <div className="shrink-0 text-[#8F3E13]">
-                <User size={18} />
+          <div className="grid grid-cols-2 items-start gap-4">
+            <div>
+              <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
+                <div className="shrink-0 text-[#8F3E13]">
+                  <User size={18} />
+                </div>
+                <input
+                  {...getInputProps(fields.firstName, { type: "text" })}
+                  placeholder="First Name"
+                  disabled={isPending}
+                  className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none disabled:cursor-not-allowed"
+                />
               </div>
-              <input
-                id="firstName"
-                name="firstName"
-                type="text"
-                placeholder="First Name"
-                disabled={isPending}
-                required
-                className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none disabled:cursor-not-allowed"
-              />
+              {fields.firstName.errors && (
+                <p className="mt-1 text-xs font-medium text-red-600">
+                  {fields.firstName.errors}
+                </p>
+              )}
             </div>
 
-            <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
-              <div className="shrink-0 text-[#8F3E13]">
-                <User size={18} />
+            <div>
+              <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
+                <div className="shrink-0 text-[#8F3E13]">
+                  <User size={18} />
+                </div>
+                <input
+                  {...getInputProps(fields.lastName, { type: "text" })}
+                  placeholder="Last Name"
+                  disabled={isPending}
+                  className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none disabled:cursor-not-allowed"
+                />
               </div>
-              <input
-                id="lastName"
-                name="lastName"
-                type="text"
-                placeholder="Last Name"
-                disabled={isPending}
-                required
-                className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none disabled:cursor-not-allowed"
-              />
+              {fields.lastName.errors && (
+                <p className="mt-1 text-xs font-medium text-red-600">
+                  {fields.lastName.errors}
+                </p>
+              )}
             </div>
           </div>
 
           {/* Email Input Field */}
-          <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
-            <div className="shrink-0 text-[#8F3E13]">
-              <Mail size={18} />
+          <div>
+            <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
+              <div className="shrink-0 text-[#8F3E13]">
+                <Mail size={18} />
+              </div>
+              <input
+                {...getInputProps(fields.email, { type: "email" })}
+                placeholder="Email"
+                disabled={isPending}
+                className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none disabled:cursor-not-allowed"
+              />
             </div>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Email"
-              disabled={isPending}
-              required
-              className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none disabled:cursor-not-allowed"
-            />
+            {fields.email.errors && (
+              <p className="mt-1 text-xs font-medium text-red-600">
+                {fields.email.errors}
+              </p>
+            )}
           </div>
 
           {/* Password Input Field */}
-          <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
-            <div className="shrink-0 text-[#8F3E13]">
-              <Lock size={18} />
+          <div>
+            <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
+              <div className="shrink-0 text-[#8F3E13]">
+                <Lock size={18} />
+              </div>
+              <input
+                {...getInputProps(fields.password, { type: "password" })}
+                placeholder="Password"
+                disabled={isPending}
+                className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none disabled:cursor-not-allowed"
+              />
             </div>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Password"
-              disabled={isPending}
-              required
-              className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none disabled:cursor-not-allowed"
-            />
+            {fields.password.errors && (
+              <p className="mt-1 text-xs font-medium text-red-600">
+                {fields.password.errors}
+              </p>
+            )}
           </div>
 
           {/* Error Message banner */}
-          {error && (
+          {form.errors && (
             <div
               className="animate-fade-in rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600"
               role="alert"
             >
-              {error}
+              {form.errors}
             </div>
           )}
 
