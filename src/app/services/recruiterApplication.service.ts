@@ -94,9 +94,7 @@ export const getRecruiterApplicationsService = async (
   return applications;
 };
 
-export const getAllRecruiterApplicationsService = async (
-  user: tokenPayload
-) => {
+export const getAllRecruiterApplicationService = async (user: tokenPayload) => {
   if (!user.id) {
     throw ApiError.forbidden(
       "You do not have access to view this profile application."
