@@ -14,7 +14,6 @@ import {
   generateToken,
   verifyRefreshToken,
 } from "../utils/token";
-import { id } from "zod/v4/locales";
 
 export const cookieOptions = {
   httpOnly: true,

@@ -12,6 +12,8 @@
     "studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@conform-to/react": "^1.19.4",
+    "@conform-to/zod": "^1.19.4",
     "@ducanh2912/next-pwa": "^10.2.9",
     "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",

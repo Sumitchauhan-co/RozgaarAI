@@ -1,38 +1,36 @@
 "use client";
 
 import { signInAction } from "@/app/actions/auth";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { ArrowLeft, Lock, Mail, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useActionState } from "react";
+import { signinModel } from "../models/auth.model";
 import { useAuthStore } from "../store/store";
 
 export default function LoginPage() {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
   const { setAuthenticated } = useAuthStore();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
+  const [lastResult, action, isPending] = useActionState(
+    async (prevState: unknown, formData: FormData) => {
+      const submission = parseWithZod(formData, { schema: signinModel });
+      if (submission.status !== "success") {
+        return submission.reply();
+      }
 
-    const formData = new FormData(e.currentTarget);
-
-    const targetForm = e.currentTarget;
-
-    startTransition(async () => {
       const res = await signInAction(formData);
 
       if (res?.error) {
-        setError(res.error);
-        return;
+        return submission.reply({
+          formErrors: [res.error],
+        });
       }
 
       const token = res.data.accessToken;
-
       setAuthenticated(true, token);
-      targetForm.reset();
 
       const role = res.data?.role;
       const workerId = res.data?.workerId ?? null;
@@ -50,8 +48,19 @@ export default function LoginPage() {
             : "/";
 
       router.push(redirectPath);
-    });
-  };
+      return submission.reply();
+    },
+    undefined
+  );
+
+  const [form, fields] = useForm({
+    lastResult,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: signinModel });
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+  });
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#FCF8F4] px-4">
@@ -81,11 +90,15 @@ export default function LoginPage() {
         </div>
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <form
+          {...getFormProps(form)}
+          action={action}
+          className="mt-8 space-y-5"
+        >
           {/* Email input field */}
           <div>
             <label
-              htmlFor="email"
+              htmlFor={fields.email.id}
               className="text-sm font-semibold text-[#2B0F05]"
             >
               Email
@@ -93,21 +106,23 @@ export default function LoginPage() {
             <div className="mt-2 flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
               <Mail className="shrink-0 text-[#8F3E13]" size={18} />
               <input
-                id="email"
-                type="email"
-                name="email"
+                {...getInputProps(fields.email, { type: "email" })}
                 placeholder="you@example.com"
                 className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none"
                 disabled={isPending}
-                required
               />
             </div>
+            {fields.email.errors && (
+              <p className="mt-1 text-xs font-medium text-red-600">
+                {fields.email.errors}
+              </p>
+            )}
           </div>
 
           {/* Password input field */}
           <div>
             <label
-              htmlFor="password"
+              htmlFor={fields.password.id}
               className="text-sm font-semibold text-[#2B0F05]"
             >
               Password
@@ -115,24 +130,26 @@ export default function LoginPage() {
             <div className="mt-2 flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
               <Lock className="shrink-0 text-[#8F3E13]" size={18} />
               <input
-                id="password"
-                type="password"
-                name="password"
+                {...getInputProps(fields.password, { type: "password" })}
                 placeholder="••••••••"
                 className="w-full bg-transparent text-gray-800 placeholder-gray-400 outline-none"
                 disabled={isPending}
-                required
               />
             </div>
+            {fields.password.errors && (
+              <p className="mt-1 text-xs font-medium text-red-600">
+                {fields.password.errors}
+              </p>
+            )}
           </div>
 
           {/* Error Message banner */}
-          {error && (
+          {form.errors && (
             <div
               className="animate-fade-in rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600"
               role="alert"
             >
-              {error}
+              {form.errors}
             </div>
           )}
 
