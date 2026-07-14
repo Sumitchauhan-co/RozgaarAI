@@ -9,10 +9,11 @@ import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
 import { signupModel } from "../models/auth.model";
 import { useAuthStore } from "../store/store";
+import api from "../utils/api";
 
 export default function SignupPage() {
   const [role, setRole] = useState<"worker" | "recruiter">("worker");
-  const { setAuthenticated } = useAuthStore();
+  const { setAuthenticated, setRecruiterId, setWorkerId } = useAuthStore();
   const router = useRouter();
 
   const [lastResult, action, isPending] = useActionState(
@@ -33,6 +34,18 @@ export default function SignupPage() {
       }
 
       const token = res?.data?.accessToken;
+
+      const userRole = res.data.user.role;
+
+      if (userRole === "worker") {
+        const profileRes = await api.get("/api/worker/profile");
+
+        setWorkerId(profileRes.data.data.id);
+      } else if (userRole === "recruiter") {
+        const profileRes = await api.get("/api/recruiter/profile");
+
+        setRecruiterId(profileRes.data.data.id);
+      }
 
       if (token) {
         setAuthenticated(true, token);

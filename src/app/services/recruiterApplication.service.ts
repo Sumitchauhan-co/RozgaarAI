@@ -1,32 +1,25 @@
 import { and, eq } from "drizzle-orm";
 import { getDb } from "../db";
 import { usersTable } from "../db/auth.schema";
+import { recruitersTable } from "../db/recruiter.schema";
 import { recruiterApplicationsTable } from "../db/recruiterApplication.schema";
+import { RecruiterApplicationInput } from "../models/recruiterApplication.model";
 import ApiError from "../utils/apiError";
 import { tokenPayload } from "../utils/token";
-
-export interface RecruiterApplicationInput {
-  salary?: number | null;
-  currency?: string;
-  payPeriod?: "hourly" | "monthly" | "yearly";
-  companyName: string;
-  industry?: string | null;
-  locality?: string | null;
-  city: string;
-  country: string;
-  phone?: string | null;
-  status?: "pending" | "accepted" | "rejected";
-}
 
 export const saveRecruiterApplicationService = async (
   data: RecruiterApplicationInput,
   user: tokenPayload,
-  userId: string
+  recruiterId: string
 ) => {
   if (!user.id) {
     throw ApiError.forbidden(
       "You do not have access to manage this profile context."
     );
+  }
+
+  if (!recruiterId) {
+    throw ApiError.badRequest("Missing recruiterId parameter.");
   }
 
   const db = getDb();
@@ -37,7 +30,8 @@ export const saveRecruiterApplicationService = async (
       lastName: usersTable.lastName,
     })
     .from(usersTable)
-    .where(eq(usersTable.id, userId));
+    .innerJoin(recruitersTable, eq(recruitersTable.userId, usersTable.id))
+    .where(eq(recruitersTable.id, recruiterId));
 
   if (!userData || !userData.firstName) {
     throw ApiError.notFound(
@@ -55,7 +49,7 @@ export const saveRecruiterApplicationService = async (
   const [newApplication] = await db
     .insert(recruiterApplicationsTable)
     .values({
-      userId,
+      recruiterId,
       firstName: userData.firstName,
       lastName: userData.lastName,
       salary: data.salary ? Number(data.salary) : null,
@@ -67,7 +61,7 @@ export const saveRecruiterApplicationService = async (
       city,
       country,
       phone: data.phone || null,
-      status: data.status || "pending",
+      // status: data.status || "pending",
     })
     .returning();
 
@@ -76,7 +70,7 @@ export const saveRecruiterApplicationService = async (
 
 export const getRecruiterApplicationsService = async (
   user: tokenPayload,
-  userId: string
+  recruiterId: string
 ) => {
   if (!user.id) {
     throw ApiError.forbidden(
@@ -89,7 +83,7 @@ export const getRecruiterApplicationsService = async (
   const applications = await db
     .select()
     .from(recruiterApplicationsTable)
-    .where(eq(recruiterApplicationsTable.userId, userId));
+    .where(eq(recruiterApplicationsTable.recruiterId, recruiterId));
 
   return applications;
 };
@@ -111,7 +105,7 @@ export const getAllRecruiterApplicationService = async (user: tokenPayload) => {
 export const updateRecruiterApplicationService = async (
   data: Partial<RecruiterApplicationInput>,
   user: tokenPayload,
-  userId: string,
+  recruiterId: string,
   applicationId: string
 ) => {
   if (!user.id) {
@@ -132,10 +126,12 @@ export const updateRecruiterApplicationService = async (
     .where(
       and(
         eq(recruiterApplicationsTable.id, applicationId),
-        eq(recruiterApplicationsTable.userId, userId)
+        eq(recruiterApplicationsTable.recruiterId, recruiterId)
       )
     )
     .returning();
+
+  console.log(updatedApplication);
 
   if (!updatedApplication) {
     throw ApiError.notFound("No application record found to update.");
@@ -146,7 +142,7 @@ export const updateRecruiterApplicationService = async (
 
 export const deleteRecruiterApplicationService = async (
   user: tokenPayload,
-  userId: string,
+  recruiterId: string,
   applicationId: string
 ) => {
   if (!user.id) {
@@ -162,7 +158,7 @@ export const deleteRecruiterApplicationService = async (
     .where(
       and(
         eq(recruiterApplicationsTable.id, applicationId),
-        eq(recruiterApplicationsTable.userId, userId)
+        eq(recruiterApplicationsTable.recruiterId, recruiterId)
       )
     )
     .returning({ id: recruiterApplicationsTable.id });
@@ -178,7 +174,7 @@ export const deleteRecruiterApplicationService = async (
 
 export const getSingleRecruiterApplicationService = async (
   user: tokenPayload,
-  userId: string,
+  recruiterId: string,
   applicationId: string
 ) => {
   if (!user.id) {
@@ -195,7 +191,7 @@ export const getSingleRecruiterApplicationService = async (
     .where(
       and(
         eq(recruiterApplicationsTable.id, applicationId),
-        eq(recruiterApplicationsTable.userId, userId)
+        eq(recruiterApplicationsTable.recruiterId, recruiterId)
       )
     );
 

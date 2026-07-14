@@ -3,15 +3,17 @@
 import { signInAction } from "@/app/actions/auth";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod/v4";
+import { isAxiosError } from "axios";
 import { ArrowLeft, Lock, Mail, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { signinModel } from "../models/auth.model";
 import { useAuthStore } from "../store/store";
+import api from "../utils/api";
 
 export default function LoginPage() {
-  const { setAuthenticated } = useAuthStore();
+  const { setAuthenticated, setRecruiterId, setWorkerId } = useAuthStore();
   const router = useRouter();
 
   const [lastResult, action, isPending] = useActionState(
@@ -32,22 +34,46 @@ export default function LoginPage() {
       const token = res.data.accessToken;
       setAuthenticated(true, token);
 
-      const role = res.data?.role;
-      const workerId = res.data?.workerId ?? null;
-      const recruiterId = res.data?.recruiterId ?? null;
+      const role = res.data.user.role;
 
-      const redirectPath =
-        role === "worker"
-          ? workerId
-            ? "/applications/workers"
-            : "/profile"
-          : role === "recruiter"
-            ? recruiterId
-              ? "/applications/recruiters"
-              : "/profile"
-            : "/";
+      if (role === "worker") {
+        try {
+          const profileRes = await api.get("/api/worker/profile");
+          if (profileRes.data?.success && profileRes.data?.data?.id) {
+            setWorkerId(profileRes.data.data.id);
+          } else {
+            setWorkerId(null);
+          }
+        } catch (err) {
+          console.log("No worker profile created yet.", err);
+          if (isAxiosError(err)) {
+            console.log(
+              err.response?.data?.message ||
+                "Unable to create the application right now."
+            );
+          }
+          setWorkerId(null);
+        }
+      } else if (role === "recruiter") {
+        try {
+          const profileRes = await api.get("/api/recruiter/profile");
 
-      router.push(redirectPath);
+          const rawData = Array.isArray(profileRes.data?.data)
+            ? profileRes.data.data[0]
+            : profileRes.data?.data;
+
+          if (profileRes.data?.success && rawData?.id) {
+            setRecruiterId(rawData.id);
+          } else {
+            setRecruiterId(null);
+          }
+        } catch (err) {
+          console.log("No recruiter profile created yet.", err);
+          setRecruiterId(null);
+        }
+      }
+
+      router.push("/profile");
       return submission.reply();
     },
     undefined

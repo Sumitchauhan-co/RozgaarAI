@@ -11,21 +11,25 @@ import { validateBody } from "@/app/utils/validate";
 import { NextRequest } from "next/server";
 
 type RouteContext = {
-  params: Promise<{ workerId: string }>;
+  params: Promise<{ recruiterId: string }>;
   user?: tokenPayload;
 };
 
 export const GET = authenticate(
   async (req: NextRequest, context: RouteContext) => {
     try {
-      const { workerId } = await context.params;
+      const { recruiterId } = await context.params;
+
+      if (!recruiterId) {
+        throw ApiError.badRequest("Missing recruiter id parameter");
+      }
       const user = context.user;
 
       if (!user) throw ApiError.unauthorized("User not found");
 
       const recruiterApplication = await getRecruiterApplicationsService(
         user,
-        workerId
+        recruiterId
       );
 
       return ApiResponse.ok(
@@ -45,16 +49,22 @@ export const POST = authenticate(
   async (req: NextRequest, context: RouteContext) => {
     return validateBody(recruiterApplicationSchema)(req, async data => {
       try {
-        const { workerId } = await context.params;
+        const { recruiterId } = await context.params;
         const user = context.user;
 
         if (!user) {
           throw ApiError.notFound("User not found");
         }
+
+        if (!recruiterId) {
+          throw ApiError.badRequest(
+            "Missing recruiterId parameter in request path."
+          );
+        }
         const recruiterApplication = await saveRecruiterApplicationService(
           data,
           user,
-          workerId
+          recruiterId
         );
 
         return ApiResponse.accepted(

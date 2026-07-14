@@ -13,7 +13,7 @@ import { NextRequest } from "next/server";
 
 type RouteContext = {
   params: Promise<{
-    workerId: string;
+    recruiterId: string;
     applicationId: string;
   }>;
   user?: tokenPayload;
@@ -22,14 +22,14 @@ type RouteContext = {
 export const GET = authenticate(
   async (req: NextRequest, context: RouteContext) => {
     try {
-      const { workerId, applicationId } = await context.params;
+      const { recruiterId, applicationId } = await context.params;
       const user = context.user;
 
       if (!user) throw ApiError.unauthorized("User not found");
 
       const application = await getSingleRecruiterApplicationService(
         user,
-        workerId,
+        recruiterId,
         applicationId
       );
 
@@ -49,12 +49,12 @@ export const GET = authenticate(
 export const DELETE = authenticate(
   async (req: NextRequest, context: RouteContext) => {
     try {
-      const { workerId, applicationId } = await context.params;
+      const { recruiterId, applicationId } = await context.params;
       const user = context.user;
 
       if (!user) throw ApiError.unauthorized("User not found");
 
-      await deleteRecruiterApplicationService(user, workerId, applicationId);
+      await deleteRecruiterApplicationService(user, recruiterId, applicationId);
 
       return ApiResponse.ok("Worker application deleted successfully", null);
     } catch (error) {
@@ -70,7 +70,7 @@ export const PATCH = authenticate(
   async (req: NextRequest, context: RouteContext) => {
     return validateBody(recruiterApplicationUpdateSchema)(req, async data => {
       try {
-        const { workerId, applicationId } = await context.params;
+        const { recruiterId, applicationId } = await context.params;
         const user = context.user;
 
         if (!user) throw ApiError.unauthorized("User not found");
@@ -78,7 +78,7 @@ export const PATCH = authenticate(
         const updatedApplication = await updateRecruiterApplicationService(
           data,
           user,
-          workerId,
+          recruiterId,
           applicationId
         );
 

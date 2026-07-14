@@ -1,24 +1,29 @@
 "use client";
 
-import { UpdateWorker, Worker, workerModel } from "@/app/models/worker.model";
+import { workerModel } from "@/app/models/worker.model";
 import { useAuthStore } from "@/app/store/store";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod/v4";
 import { AxiosError } from "axios";
 import {
+  ArrowLeft,
   Briefcase,
+  BriefcaseBusiness,
   Edit3,
   Loader2,
+  MapPin,
+  Phone,
   Plus,
   Trash2,
+  UserCheck,
   User as UserIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import api from "../../utils/api";
 
-// Create a UI-specific schema extending your model to process the raw comma-separated string input
+// UI-specific schema extending model to process raw comma-separated values
 const uiWorkerSchema = workerModel.extend({
   profession: z.preprocess(val => {
     if (typeof val !== "string" || !val.trim()) return [];
@@ -31,15 +36,20 @@ const uiWorkerSchema = workerModel.extend({
 
 interface WorkerApplicationItem {
   id: string;
-  companyName: string;
-  city: string;
-  country: string;
-  industry: string | null;
-  locality: string | null;
+  workerId: string;
+  firstName: string;
+  lastName: string | null;
   salaryExpectation: number | null;
   currency: string;
   payPeriod: "hourly" | "monthly" | "yearly";
+  industry: string | null;
+  locality: string | null;
+  city: string;
+  country: string;
+  phone: string | null;
   status: "pending" | "rejected" | "accepted";
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 interface UserSession {
@@ -54,7 +64,13 @@ interface ApiResponse<T> {
   data: T;
 }
 
-// Extend the local component state type to manage the string format for editing
+interface Worker {
+  id: string;
+  age?: number | null | undefined;
+  profession?: string[] | null | undefined;
+  city?: string | null | undefined;
+}
+
 type LocalWorkerState = Partial<Worker> & {
   professionRawString?: string;
 };
@@ -72,11 +88,36 @@ export default function WorkerProfilePage() {
   const [formData, setFormData] = useState<LocalWorkerState>({});
   const [user, setUser] = useState<UserSession | null>(null);
   const [applications, setApplications] = useState<WorkerApplicationItem[]>([]);
-  const [applicationsLoading, setApplicationsLoading] = useState(false);
+  const [loadingApps, setLoadingApps] = useState(false);
+
+  // Application Edit Overlay Modal States modeled from reference component
+  const [isAppModalOpen, setIsAppModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<
+    Partial<WorkerApplicationItem>
+  >({});
+  const [appSubmitting, setAppSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) router.push("/login");
   }, [isAuthenticated, router]);
+
+  const fetchApplications = useCallback(async () => {
+    if (!workerId) return;
+
+    setLoadingApps(true);
+    try {
+      const res = await api.get<ApiResponse<WorkerApplicationItem[]>>(
+        `/api/worker/application/${workerId}`
+      );
+      if (res.data?.success) {
+        setApplications(Array.isArray(res.data.data) ? res.data.data : []);
+      }
+    } catch (err) {
+      console.error("Error loading profile applications:", err);
+    } finally {
+      setLoadingApps(false);
+    }
+  }, [workerId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -115,27 +156,12 @@ export default function WorkerProfilePage() {
         setLoading(false);
       }
     };
-    if (isAuthenticated) fetchData();
-  }, [isAuthenticated, setWorkerId]);
 
-  useEffect(() => {
-    if (!workerId) return;
-    const fetchApps = async () => {
-      try {
-        setApplicationsLoading(true);
-        const res = await api.get<ApiResponse<WorkerApplicationItem[]>>(
-          `/api/worker/application/${workerId}`
-        );
-        if (res.data?.success)
-          setApplications(Array.isArray(res.data.data) ? res.data.data : []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setApplicationsLoading(false);
-      }
-    };
-    fetchApps();
-  }, [workerId]);
+    if (isAuthenticated) {
+      fetchData();
+      fetchApplications();
+    }
+  }, [isAuthenticated, setWorkerId, fetchApplications]);
 
   const [form, fields] = useForm({
     onValidate({ formData }) {
@@ -154,7 +180,6 @@ export default function WorkerProfilePage() {
     if (submission.status !== "success") return;
 
     setSubmitting(true);
-
     const payload = {
       age: submission.value.age ? Number(submission.value.age) : null,
       city: submission.value.city || null,
@@ -164,24 +189,20 @@ export default function WorkerProfilePage() {
     try {
       const res = profileExists
         ? await api.patch<ApiResponse<Worker>>("/api/worker/profile", payload)
-        : await api.post<ApiResponse<UpdateWorker>>(
-            "/api/worker/profile",
-            payload
-          );
+        : await api.post<ApiResponse<Worker>>("/api/worker/profile", payload);
 
       if (res.data?.success) {
         const updated = Array.isArray(res.data.data)
           ? res.data.data[0]
           : res.data.data;
-
         const localData: LocalWorkerState = { ...updated };
         if (Array.isArray(updated?.profession)) {
           localData.professionRawString = updated.profession.join(", ");
         }
-
         setFormData(localData);
         setProfileExists(true);
         setIsEditing(false);
+        setWorkerId(res.data.data.id);
       }
     } catch (err) {
       setServerError(
@@ -210,6 +231,53 @@ export default function WorkerProfilePage() {
     }
   };
 
+  // Delete worker application record inline matching standard pattern[cite: 8]
+  const handleAppDelete = async (appId: string) => {
+    if (!confirm("Are you sure you want to delete this application?")) return;
+    try {
+      const res = await api.delete(
+        `/api/worker/application/${workerId}/${appId}`
+      );
+      if (res.data?.success) {
+        setApplications(prev => prev.filter(app => app.id !== appId));
+      }
+    } catch (err) {
+      console.error("Error deleting application:", err);
+      alert("Failed to delete application entry.");
+    }
+  };
+
+  // Open modal overlay with selected application attributes mapped[cite: 8]
+  const handleAppEditOpen = (app: WorkerApplicationItem) => {
+    setSelectedApp(app);
+    setIsAppModalOpen(true);
+  };
+
+  // Save changes to dynamic worker application fields[cite: 8]
+  const handleAppEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAppSubmitting(true);
+    try {
+      const res = await api.patch(
+        `/api/worker/application/${workerId}/${selectedApp.id}`,
+        selectedApp
+      );
+      if (res.data?.success) {
+        setApplications(prev =>
+          prev.map(app =>
+            app.id === selectedApp.id ? { ...app, ...selectedApp } : app
+          )
+        );
+        setIsAppModalOpen(false);
+      }
+    } catch (err) {
+      console.error("Error updating application parameters:", err);
+      alert("Failed to update application details.");
+    } finally {
+      setAppSubmitting(false);
+    }
+  };
+
   if (loading)
     return (
       <div className="flex min-h-[70vh] items-center justify-center bg-[#FCFBF9]">
@@ -218,7 +286,18 @@ export default function WorkerProfilePage() {
     );
 
   return (
-    <main className="min-h-screen bg-[#FCFBF9] px-4 py-12 sm:px-6 lg:px-8">
+    <main className="min-h-screen space-y-6 bg-[#FCFBF9] px-4 py-8 sm:px-6 lg:px-8">
+      {/* Back button container alignment matching reference profile[cite: 8] */}
+      <div className="mx-auto max-w-3xl">
+        <button
+          onClick={() => router.push("/")}
+          className="inline-flex items-center gap-2 rounded-xl border border-[#ECE3DA] bg-white px-4 py-2 text-sm font-semibold text-[#55463E] shadow-sm transition hover:bg-[#F8ECE4]/40"
+        >
+          <ArrowLeft size={16} /> Back to Home
+        </button>
+      </div>
+
+      {/* Profile Metrics Section */}
       <div className="mx-auto max-w-3xl rounded-2xl border border-[#ECE3DA] bg-white p-8 shadow-sm">
         <div className="flex flex-col items-center border-b border-[#ECE3DA] pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-center gap-4">
@@ -410,44 +489,266 @@ export default function WorkerProfilePage() {
             </div>
           )}
         </div>
+      </div>
 
-        {/* Applications view section */}
-        <section className="mt-8 rounded-2xl border border-[#ECE3DA] bg-[#FCFBF9] p-6">
-          <h2 className="text-lg font-semibold text-[#55463E]">
-            Your Applications
-          </h2>
-          {applicationsLoading ? (
-            <div className="mt-5 text-sm text-gray-500">Loading...</div>
+      {/* Tracked Applications Section (Mirrors Recruiter Card Grid Strategy)[cite: 8] */}
+      <div className="mx-auto max-w-3xl rounded-2xl border border-[#ECE3DA] bg-white p-8 shadow-sm">
+        <div className="flex items-center justify-between border-b border-[#ECE3DA] pb-4">
+          <div>
+            <h2 className="text-xl font-bold text-[#55463E]">
+              Tracked Applications
+            </h2>
+            <p className="mt-0.5 text-xs text-gray-400">
+              Active openings and status summaries managed by your account
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          {loadingApps ? (
+            <div className="flex justify-center py-10">
+              <Loader2 className="h-6 w-6 animate-spin text-[#5B1E05]" />
+            </div>
           ) : applications.length === 0 ? (
-            <div className="mt-5 text-sm text-gray-500">
-              No applications found.
+            <div className="rounded-xl border border-dashed border-gray-200 py-12 text-center">
+              <BriefcaseBusiness className="mx-auto mb-2 h-10 w-10 text-gray-300" />
+              <p className="text-sm font-medium text-gray-400">
+                No applications configured yet.
+              </p>
             </div>
           ) : (
-            <div className="mt-5 space-y-3">
+            <div className="max-h-[500px] space-y-4 overflow-y-auto pr-1">
               {applications.map(app => (
                 <div
                   key={app.id}
-                  className="flex items-start justify-between rounded-xl border border-[#ECE3DA] bg-white p-4"
+                  className="rounded-3xl border border-orange-100/40 bg-white p-6 shadow-sm transition hover:shadow-md"
                 >
-                  <div>
-                    <p className="font-semibold text-[#55463E]">
-                      {app.companyName}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {app.city}, {app.country}
-                    </p>
+                  <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex w-full items-start gap-5">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50">
+                        <UserCheck className="text-[#8F3E13]" size={24} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="inline-block rounded-md bg-[#F5E7DA] px-2 py-0.5 text-xs font-bold text-[#8F3E13]">
+                            Application Slot
+                          </span>
+                          {/* App Actions (Edit overlay & Delete service workflow)[cite: 8] */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleAppEditOpen(app)}
+                              className="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-[#8F3E13]"
+                              title="Edit Application"
+                            >
+                              <Edit3 size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleAppDelete(app.id)}
+                              className="rounded-lg p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                              title="Delete Application"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                        <h2 className="mt-1 text-xl font-bold text-[#2B0F05]">
+                          {app.firstName} {app.lastName || ""}
+                        </h2>
+
+                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <MapPin size={14} />
+                            {app.locality ? `${app.locality}, ` : ""}
+                            {app.city}, {app.country}
+                          </span>
+                          {app.industry && (
+                            <span className="flex items-center gap-1">
+                              <BriefcaseBusiness size={14} />
+                              {app.industry}
+                            </span>
+                          )}
+                          {app.phone && (
+                            <span className="flex items-center gap-1">
+                              <Phone size={14} />
+                              {app.phone}
+                            </span>
+                          )}
+                          {app.salaryExpectation && (
+                            <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 uppercase">
+                              Expected:{" "}
+                              {app.salaryExpectation?.toLocaleString()}{" "}
+                              {app.currency} / {app.payPeriod}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${app.status === "accepted" ? "bg-green-100 text-green-700" : app.status === "rejected" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}
-                  >
-                    {app.status}
-                  </span>
                 </div>
               ))}
             </div>
           )}
-        </section>
+        </div>
       </div>
+
+      {/* EDIT APPLICATION DIALOG OVERLAY MODAL[cite: 8] */}
+      {isAppModalOpen && (
+        <div className="animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-xl font-bold text-[#2B0F05]">
+              Edit Application Details
+            </h3>
+            <form onSubmit={handleAppEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-500 uppercase">
+                    Expected Salary
+                  </label>
+                  <input
+                    type="number"
+                    value={selectedApp.salaryExpectation || ""}
+                    onChange={e =>
+                      setSelectedApp(p => ({
+                        ...p,
+                        salaryExpectation: e.target.value
+                          ? Number(e.target.value)
+                          : null,
+                      }))
+                    }
+                    className="w-full rounded-xl border border-[#ECE3DA] p-2.5 text-sm focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-500 uppercase">
+                    Currency
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedApp.currency || ""}
+                    onChange={e =>
+                      setSelectedApp(p => ({ ...p, currency: e.target.value }))
+                    }
+                    className="w-full rounded-xl border border-[#ECE3DA] p-2.5 text-center text-sm focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-500 uppercase">
+                    Pay Period
+                  </label>
+                  <select
+                    value={selectedApp.payPeriod || "monthly"}
+                    onChange={e =>
+                      setSelectedApp(p => ({
+                        ...p,
+                        payPeriod: e.target.value as any,
+                      }))
+                    }
+                    className="w-full rounded-xl border border-[#ECE3DA] bg-white p-2.5 text-sm focus:outline-none"
+                  >
+                    <option value="hourly">Hourly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-500 uppercase">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={selectedApp.city || ""}
+                    onChange={e =>
+                      setSelectedApp(p => ({ ...p, city: e.target.value }))
+                    }
+                    className="w-full rounded-xl border border-[#ECE3DA] p-2.5 text-sm focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-500 uppercase">
+                    Country
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={selectedApp.country || ""}
+                    onChange={e =>
+                      setSelectedApp(p => ({ ...p, country: e.target.value }))
+                    }
+                    className="w-full rounded-xl border border-[#ECE3DA] p-2.5 text-sm focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-gray-500 uppercase">
+                  Locality
+                </label>
+                <input
+                  type="text"
+                  value={selectedApp.locality || ""}
+                  onChange={e =>
+                    setSelectedApp(p => ({ ...p, locality: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-[#ECE3DA] p-2.5 text-sm focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-500 uppercase">
+                    Industry
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedApp.industry || ""}
+                    onChange={e =>
+                      setSelectedApp(p => ({ ...p, industry: e.target.value }))
+                    }
+                    className="w-full rounded-xl border border-[#ECE3DA] p-2.5 text-sm focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-500 uppercase">
+                    Phone Reference
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedApp.phone || ""}
+                    onChange={e =>
+                      setSelectedApp(p => ({ ...p, phone: e.target.value }))
+                    }
+                    className="w-full rounded-xl border border-[#ECE3DA] p-2.5 text-sm focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsAppModalOpen(false)}
+                  className="rounded-xl border border-[#ECE3DA] px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={appSubmitting}
+                  className="flex items-center gap-2 rounded-xl bg-[#5B1E05] px-5 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-[#442003]"
+                >
+                  {appSubmitting && (
+                    <Loader2 size={14} className="animate-spin" />
+                  )}{" "}
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

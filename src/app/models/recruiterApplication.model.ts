@@ -66,5 +66,6 @@ export const recruiterApplicationUpdateSchema = recruiterApplicationSchema
     status: applicationStatusEnum.optional(),
   });
 
-export const recruiterApplicationModel = recruiterApplicationSchema;
-export type RecruiterApplication = z.infer<typeof recruiterApplicationSchema>;
+export type RecruiterApplicationInput = z.infer<
+  typeof recruiterApplicationSchema
+>;
