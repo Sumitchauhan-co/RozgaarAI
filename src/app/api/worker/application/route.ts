@@ -1,5 +1,5 @@
 import { authenticate } from "@/app/middlewares/authenticate";
-import { getAllRecruiterApplicationService } from "@/app/services/recruiterApplication.service";
+import { getAllWorkerApplicationService } from "@/app/services/workerApplication.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { NextRequest } from "next/server";
@@ -10,7 +10,7 @@ export const GET = authenticate(async (req: NextRequest, context) => {
 
     if (!user) throw ApiError.unauthorized("User not found");
 
-    const workerApplication = await getAllRecruiterApplicationService(user);
+    const workerApplication = await getAllWorkerApplicationService(user);
 
     return ApiResponse.ok(
       "Worker application fetched successfully",

@@ -23,6 +23,10 @@ export const GET = authenticate(
   async (req: NextRequest, context: RouteContext) => {
     try {
       const { workerId, applicationId } = await context.params;
+      console.log(context.params);
+      console.log("worker id: ", workerId);
+      console.log("application id: ", applicationId);
+
       const user = context.user;
 
       if (!user) throw ApiError.unauthorized("User not found");

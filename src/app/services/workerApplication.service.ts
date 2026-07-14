@@ -3,20 +3,9 @@ import { getDb } from "../db";
 import { usersTable } from "../db/auth.schema";
 import { workersTable } from "../db/worker.schema";
 import { workerApplicationsTable } from "../db/workerApplication.schema";
+import { WorkerApplicationInput } from "../models/workerApplication.model";
 import ApiError from "../utils/apiError";
 import { tokenPayload } from "../utils/token";
-
-export interface WorkerApplicationInput {
-  salaryExpectation?: number | null;
-  currency?: string;
-  payPeriod?: "hourly" | "monthly" | "yearly";
-  locality?: string | null;
-  city: string;
-  country: string;
-  industry: string;
-  phone?: string | null;
-  status?: "pending" | "accepted" | "rejected";
-}
 
 export const saveWorkerApplicationService = async (
   data: WorkerApplicationInput,
@@ -69,7 +58,7 @@ export const saveWorkerApplicationService = async (
       country,
       industry,
       phone: data.phone || null,
-      status: data.status || "pending",
+      // status: data.status || "pending",
     })
     .returning();
 
@@ -192,6 +181,8 @@ export const getSingleWorkerApplicationService = async (
   }
 
   const db = getDb();
+
+  console.log(workerId, applicationId);
 
   const [application] = await db
     .select()

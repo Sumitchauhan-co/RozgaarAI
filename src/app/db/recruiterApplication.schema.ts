@@ -5,15 +5,15 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { usersTable } from "./auth.schema";
 import { applicationStatusEnum, payPeriodEnum } from "./enum.schema";
+import { recruitersTable } from "./recruiter.schema";
 
 export const recruiterApplicationsTable = pgTable("recruiterApplications", {
   id: uuid("id").primaryKey().defaultRandom(),
 
-  userId: uuid("user_id")
+  recruiterId: uuid("recruiter_id")
     .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
+    .references(() => recruitersTable.id, { onDelete: "cascade" }),
 
   firstName: varchar("first_name", { length: 255 }).notNull(),
   lastName: varchar("last_name", { length: 255 }),

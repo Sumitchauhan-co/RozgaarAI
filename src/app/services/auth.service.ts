@@ -1,10 +1,8 @@
 import { and, eq, gt, sql } from "drizzle-orm";
-import nodemailer from "nodemailer";
 import { getDb } from "../db";
 import { userPublicColumns, usersTable } from "../db/auth.schema";
 import { UserRole } from "../models/auth.model";
 import ApiError from "../utils/apiError";
-import { getTransporter } from "../utils/mail";
 import {
   compareUserPassword,
   generateAccessToken,
@@ -85,23 +83,23 @@ export const signupService = async ({
 
     const { hashedToken, token } = await generateToken();
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const resetURL = `${baseUrl}/resetPassword?token=${token}`;
+    // const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    // const resetURL = `${baseUrl}/resetPassword?token=${token}`;
 
-    const transporter = getTransporter();
+    // const transporter = getTransporter();
 
-    try {
-      const info = await transporter.sendMail({
-        to: user.email,
-        subject: "Verify your email",
-        html: `<a href="${resetURL}/verify-email?token=${token}">Verify Email</a>`,
-      });
+    // try {
+    //   const info = await transporter.sendMail({
+    //     to: user.email,
+    //     subject: "Verify your email",
+    //     html: `<a href="${resetURL}/verify-email?token=${token}">Verify Email</a>`,
+    //   });
 
-      console.log("Message sent: %s", info.messageId);
-      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-    } catch (err) {
-      console.error("Error while sending mail:", err);
-    }
+    //   console.log("Message sent: %s", info.messageId);
+    //   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    // } catch (err) {
+    //   console.error("Error while sending mail:", err);
+    // }
 
     await tx
       .update(usersTable)
@@ -269,26 +267,26 @@ export const forgotPasswordService = async (email: string) => {
       .where(eq(usersTable.email, email));
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const resetURL = `${baseUrl}/resetPassword?token=${token}`;
+  // const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  // const resetURL = `${baseUrl}/resetPassword?token=${token}`;
 
-  // nodemailer logic
+  // // nodemailer logic
 
-  const transporter = getTransporter();
+  // const transporter = getTransporter();
 
-  try {
-    const info = await transporter.sendMail({
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: "Reset your password",
-      html: `<p>You can reset your password from the link : <a href="${resetURL}">Reset Pasword</a></p><br><p><b>NOTE : </b>Link is valid for 5 mins.</p>`,
-    });
+  // try {
+  //   const info = await transporter.sendMail({
+  //     from: process.env.SENDER_EMAIL,
+  //     to: email,
+  //     subject: "Reset your password",
+  //     html: `<p>You can reset your password from the link : <a href="${resetURL}">Reset Pasword</a></p><br><p><b>NOTE : </b>Link is valid for 5 mins.</p>`,
+  //   });
 
-    console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-  } catch (err) {
-    console.error("Error while sending mail:", err);
-  }
+  //   console.log("Message sent: %s", info.messageId);
+  //   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  // } catch (err) {
+  //   console.error("Error while sending mail:", err);
+  // }
 
   return;
 };
