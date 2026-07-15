@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ai.rozgaar.app",
+      "sha256_cert_fingerprints": [
+        "B1:B6:CB:D8:5B:50:9E:68:AA:5B:0A:DD:F8:61:DA:8E:7D:21:59:69:5D:87:D9:C3:A8:10:A9:3B:56:5E:D1:58"
+      ]
+    }
+  }
+]
