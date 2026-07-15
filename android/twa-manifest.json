@@ -16,7 +16,7 @@
   "iconUrl": "https://rozgaar-ai-app2.vercel.app/icons/icon-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "C:\\Users\\HP\\Desktop\\WebDev\\Projects\\RozgaarAI\\android.keystore",
+    "path": "C:\\Users\\HP\\Desktop\\WebDev\\Projects\\RozgaarAI\\android\\android.keystore",
     "alias": "android"
   },
   "appVersionName": "1",
