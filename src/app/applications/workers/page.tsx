@@ -18,6 +18,16 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useAuthStore } from "../../store/store";
 import api from "../../utils/api";
 
+// Import Shadcn Pagination components
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
 interface ApplicationItem {
   id: string;
   recruiterId: string;
@@ -55,6 +65,10 @@ export default function ApplicationsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Initialize React Hook Form hooks
   const { register, handleSubmit, reset } = useForm<FormInputs>({
@@ -147,20 +161,28 @@ export default function ApplicationsPage() {
     }
   };
 
+  // Pagination Logic
+  const totalPages = Math.ceil(applications.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentApplications = applications.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
   return (
     <main className="relative min-h-screen bg-[#FCF8F4]">
       {/* HEADER SECTION */}
       <section className="bg-gradient-to-r from-[#5B1E05] to-[#8F3E13] py-12">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 px-6 sm:flex-row sm:items-center lg:px-10">
           <div className="flex items-center gap-4">
-            <div className="rounded-2xl bg-white/20 p-4">
+            <div className="rounded-2xl bg-white/25 p-4">
               <Sparkles className="text-white" />
             </div>
             <div>
               <h1 className="text-4xl font-black text-white">
                 Recruiter Applications
               </h1>
-              <p className="mt-1 text-white/80">Explore job opportunities</p>
+              <p className="mt-1 text-white/85">Explore job opportunities</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-3 self-start sm:self-auto">
@@ -195,60 +217,114 @@ export default function ApplicationsPage() {
               </p>
             </div>
           ) : (
-            applications.map(app => (
-              <div
-                key={app.id}
-                onClick={() =>
-                  router.push(
-                    `/applications/workers/${app.recruiterId}/${app.id}`
-                  )
-                }
-                className="cursor-pointer rounded-3xl border border-orange-100/40 bg-white p-6 shadow-sm transition hover:border-orange-200 hover:shadow-md"
-              >
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="flex items-start gap-5">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F5E7DA]">
-                      <User className="text-[#8F3E13]" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-[#2B0F05]">
-                        {app.firstName} {app.lastName || ""}
-                      </h2>
-                      <p className="mt-0.5 flex items-center gap-1.5 font-medium text-gray-600">
-                        <Building2 size={16} className="text-gray-400" />{" "}
-                        {app.companyName}
-                      </p>
+            <>
+              {currentApplications.map(app => (
+                <div
+                  key={app.id}
+                  onClick={() =>
+                    router.push(
+                      `/applications/workers/${app.recruiterId}/${app.id}`
+                    )
+                  }
+                  className="cursor-pointer rounded-3xl border border-orange-100/40 bg-white p-6 shadow-sm transition hover:border-orange-200 hover:shadow-md"
+                >
+                  <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex items-start gap-5">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F5E7DA]">
+                        <User className="text-[#8F3E13]" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-[#2B0F05]">
+                          {app.firstName} {app.lastName || ""}
+                        </h2>
+                        <p className="mt-0.5 flex items-center gap-1.5 font-medium text-gray-600">
+                          <Building2 size={16} className="text-gray-400" />{" "}
+                          {app.companyName}
+                        </p>
 
-                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <MapPin size={14} />
-                          {app.locality ? `${app.locality}, ` : ""}
-                          {app.city}, {app.country}
-                        </span>
-                        {app.industry && (
+                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
-                            <BriefcaseBusiness size={14} />
-                            {app.industry}
+                            <MapPin size={14} />
+                            {app.locality ? `${app.locality}, ` : ""}
+                            {app.city}, {app.country}
                           </span>
-                        )}
-                        {app.phone && (
-                          <span className="flex items-center gap-1">
-                            <Phone size={14} />
-                            {app.phone}
-                          </span>
-                        )}
-                        {app.salary && (
-                          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 uppercase">
-                            Expected: {app.salary?.toLocaleString()}{" "}
-                            {app.currency} / {app.payPeriod}
-                          </span>
-                        )}
+                          {app.industry && (
+                            <span className="flex items-center gap-1">
+                              <BriefcaseBusiness size={14} />
+                              {app.industry}
+                            </span>
+                          )}
+                          {app.phone && (
+                            <span className="flex items-center gap-1">
+                              <Phone size={14} />
+                              {app.phone}
+                            </span>
+                          )}
+                          {app.salary && (
+                            <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 uppercase">
+                              Expected: {app.salary?.toLocaleString()}{" "}
+                              {app.currency} / {app.payPeriod}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+
+              {/* PAGINATION CONTROLS */}
+              {totalPages > 1 && (
+                <div className="mt-6 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() =>
+                            setCurrentPage(prev => Math.max(prev - 1, 1))
+                          }
+                          className={
+                            currentPage === 1
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+
+                      {Array.from({ length: totalPages }, (_, index) => {
+                        const pageNumber = index + 1;
+                        return (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              isActive={currentPage === pageNumber}
+                              onClick={() => setCurrentPage(pageNumber)}
+                              className="cursor-pointer"
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() =>
+                            setCurrentPage(prev =>
+                              Math.min(prev + 1, totalPages)
+                            )
+                          }
+                          className={
+                            currentPage === totalPages
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
