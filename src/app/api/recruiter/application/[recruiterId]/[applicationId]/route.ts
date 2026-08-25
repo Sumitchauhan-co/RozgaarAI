@@ -1,10 +1,10 @@
-import { authenticate } from "@/app/middlewares/authenticate";
-import { recruiterApplicationUpdateSchema } from "@/app/models/recruiterApplication.model";
+import { authenticate } from "@/app/server/middlewares/authenticate";
+import { recruiterApplicationUpdateSchema } from "@/app/server/models/recruiterApplication.model";
 import {
   deleteRecruiterApplicationService,
   getSingleRecruiterApplicationService,
   updateRecruiterApplicationService,
-} from "@/app/services/recruiterApplication.service";
+} from "@/app/server/services/recruiterApplication.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { tokenPayload } from "@/app/utils/token";

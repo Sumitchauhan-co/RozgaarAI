@@ -12,7 +12,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     const { forgotPasswordService } =
-      await import("@/app/services/auth.service");
+      await import("@/app/server/services/auth.service");
     await forgotPasswordService(email);
 
     return ApiResponse.ok("Email sent successfully to the existing account");

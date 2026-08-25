@@ -43,6 +43,13 @@
       "when": 1787429081095,
       "tag": "0005_colossal_norrin_radd",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787567409629,
+      "tag": "0006_lean_kulan_gath",
+      "breakpoints": true
     }
   ]
 }

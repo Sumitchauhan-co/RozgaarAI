@@ -1,4 +1,4 @@
-import { resetPasswordService } from "@/app/services/auth.service";
+import { resetPasswordService } from "@/app/server/services/auth.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { NextRequest } from "next/server";

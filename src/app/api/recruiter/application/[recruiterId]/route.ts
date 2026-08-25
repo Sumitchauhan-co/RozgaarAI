@@ -1,9 +1,9 @@
-import { authenticate } from "@/app/middlewares/authenticate";
-import { recruiterApplicationSchema } from "@/app/models/recruiterApplication.model";
+import { authenticate } from "@/app/server/middlewares/authenticate";
+import { recruiterApplicationSchema } from "@/app/server/models/recruiterApplication.model";
 import {
   getRecruiterApplicationsService,
   saveRecruiterApplicationService,
-} from "@/app/services/recruiterApplication.service";
+} from "@/app/server/services/recruiterApplication.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { tokenPayload } from "@/app/utils/token";

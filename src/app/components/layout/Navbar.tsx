@@ -1,6 +1,6 @@
 "use client";
 
-import { signOutAction } from "@/app/actions/auth";
+import { signOutAction } from "@/app/features/auth/actions/auth";
 import { useAuthStore } from "@/app/store/store";
 import { Menu, User, X } from "lucide-react";
 import Image from "next/image";

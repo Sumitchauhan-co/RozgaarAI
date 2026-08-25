@@ -1,4 +1,7 @@
-import { cookieOptions, refreshService } from "@/app/services/auth.service";
+import {
+  cookieOptions,
+  refreshService,
+} from "@/app/server/services/auth.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { cookies } from "next/headers";

@@ -1,12 +1,15 @@
-import { authenticate } from "@/app/middlewares/authenticate";
-import { workerModel, workerUpdateModel } from "@/app/models/worker.model";
-import { cookieOptions } from "@/app/services/auth.service";
+import { authenticate } from "@/app/server/middlewares/authenticate";
+import {
+  workerModel,
+  workerUpdateModel,
+} from "@/app/server/models/worker.model";
+import { cookieOptions } from "@/app/server/services/auth.service";
 import {
   deleteWorkerService,
   fetchWorkerService,
   saveWorkerProfileService,
   updateWorkerProfileService,
-} from "@/app/services/worker.service";
+} from "@/app/server/services/worker.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { validateBody } from "@/app/utils/validate";

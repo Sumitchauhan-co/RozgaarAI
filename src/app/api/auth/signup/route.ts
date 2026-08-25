@@ -1,5 +1,8 @@
-import { signupModel } from "@/app/models/auth.model";
-import { cookieOptions, signupService } from "@/app/services/auth.service";
+import { signupModel } from "@/app/server/models/auth.model";
+import {
+  cookieOptions,
+  signupService,
+} from "@/app/server/services/auth.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { validateBody } from "@/app/utils/validate";

@@ -1,5 +1,5 @@
-import { authenticate } from "@/app/middlewares/authenticate";
-import { getAllWorkerApplicationService } from "@/app/services/workerApplication.service";
+import { authenticate } from "@/app/server/middlewares/authenticate";
+import { getAllWorkerApplicationService } from "@/app/server/services/workerApplication.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { NextRequest } from "next/server";

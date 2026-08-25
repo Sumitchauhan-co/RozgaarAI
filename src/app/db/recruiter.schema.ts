@@ -1,4 +1,5 @@
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+
 import { usersTable } from "./auth.schema";
 
 export const recruitersTable = pgTable("recruiters", {
@@ -6,19 +7,34 @@ export const recruitersTable = pgTable("recruiters", {
 
   userId: uuid("user_id")
     .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" })
+    .references(() => usersTable.id, {
+      onDelete: "cascade",
+    })
     .unique(),
 
-  companyName: varchar("company_name", { length: 255 }).notNull(),
+  companyName: varchar("company_name", {
+    length: 255,
+  }).notNull(),
 
-  industry: varchar("industry", { length: 100 }),
+  companyDescription: text("company_description"),
 
-  city: varchar("city", { length: 100 }),
+  industry: varchar("industry", {
+    length: 100,
+  }),
 
-  createdAt: timestamp("created_at", { withTimezone: true })
+  city: varchar("city", {
+    length: 100,
+  }),
+
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+  })
     .defaultNow()
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
+
+  updatedAt: timestamp("updated_at", {
+    withTimezone: true,
+  })
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),

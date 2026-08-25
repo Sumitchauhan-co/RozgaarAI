@@ -1,4 +1,4 @@
-import { profileService } from "@/app/services/auth.service";
+import { profileService } from "@/app/server/services/auth.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { NextRequest } from "next/server";

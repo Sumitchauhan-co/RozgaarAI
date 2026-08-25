@@ -1,5 +1,5 @@
-import { authenticate } from "@/app/middlewares/authenticate";
-import { getAllRecruiterApplicationService } from "@/app/services/recruiterApplication.service";
+import { authenticate } from "@/app/server/middlewares/authenticate";
+import { getAllRecruiterApplicationService } from "@/app/server/services/recruiterApplication.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { NextRequest } from "next/server";

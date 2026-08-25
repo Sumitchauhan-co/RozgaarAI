@@ -1,15 +1,15 @@
-import { authenticate } from "@/app/middlewares/authenticate";
+import { authenticate } from "@/app/server/middlewares/authenticate";
 import {
   recruiterModel,
   recruiterUpdateModel,
-} from "@/app/models/recruiter.model";
-import { cookieOptions } from "@/app/services/auth.service";
+} from "@/app/server/models/recruiter.model";
+import { cookieOptions } from "@/app/server/services/auth.service";
 import {
   deleteRecruiterService,
   fetchRecruiterService,
   saveRecruiterProfileService,
   updateRecruiterProfileService,
-} from "@/app/services/recruiter.service";
+} from "@/app/server/services/recruiter.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { validateBody } from "@/app/utils/validate";

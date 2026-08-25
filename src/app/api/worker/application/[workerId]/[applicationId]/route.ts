@@ -1,10 +1,10 @@
-import { authenticate } from "@/app/middlewares/authenticate";
-import { updateWorkerApplicationSchema } from "@/app/models/workerApplication.model";
+import { authenticate } from "@/app/server/middlewares/authenticate";
+import { updateWorkerApplicationSchema } from "@/app/server/models/workerApplication.model";
 import {
   deleteWorkerApplicationService,
   getSingleWorkerApplicationService,
   updateWorkerApplicationService,
-} from "@/app/services/workerApplication.service";
+} from "@/app/server/services/workerApplication.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { tokenPayload } from "@/app/utils/token";

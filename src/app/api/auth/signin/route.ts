@@ -1,5 +1,8 @@
-import { signinModel } from "@/app/models/auth.model";
-import { cookieOptions, signinService } from "@/app/services/auth.service";
+import { signinModel } from "@/app/server/models/auth.model";
+import {
+  cookieOptions,
+  signinService,
+} from "@/app/server/services/auth.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { validateBody } from "@/app/utils/validate";

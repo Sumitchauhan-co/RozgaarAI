@@ -66,4 +66,15 @@ export function handleApiError(error: unknown) {
   );
 }
 
+export function handleUnsupportedRequest(): {
+  ok: boolean;
+  message: string;
+} {
+  return {
+    ok: false,
+    message:
+      "I can’t help with that exact request, but I can assist with a related alternative or a different approach.",
+  };
+}
+
 export default ApiError;

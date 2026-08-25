@@ -1,5 +1,5 @@
-import { authenticate } from "@/app/middlewares/authenticate";
-import { signoutService } from "@/app/services/auth.service";
+import { authenticate } from "@/app/server/middlewares/authenticate";
+import { signoutService } from "@/app/server/services/auth.service";
 import ApiError, { handleApiError } from "@/app/utils/apiError";
 import ApiResponse from "@/app/utils/apiResponse";
 import { cookies } from "next/headers";
