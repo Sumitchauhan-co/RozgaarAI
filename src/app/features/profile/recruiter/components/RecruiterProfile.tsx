@@ -19,6 +19,7 @@ import EditApplicationModal from "./EditApplicationModal";
 import RecruiterApplication from "./RecruiterApplications";
 
 import { recruiterModel } from "@/app/server/models/recruiter.model";
+import { toast } from "sonner";
 import {
   deleteRecruiterApplication,
   deleteRecruiterProfile,
@@ -27,7 +28,7 @@ import {
   fetchUserData,
   saveRecruiterProfile,
   updateRecruiterApplication,
-} from "../server/actions/recruiter";
+} from "../actions/recruiter";
 
 type RecruiterFormValues = {
   companyName: string;
@@ -78,7 +79,10 @@ export default function RecruiterProfile() {
   });
 
   useEffect(() => {
-    if (!isAuthenticated) router.push("/login");
+    if (!isAuthenticated) {
+      toast.warning("Please log in to access your recruiter profile.");
+      router.push("/login");
+    }
   }, [isAuthenticated, router]);
 
   const loadApplications = useCallback(async () => {
@@ -123,8 +127,10 @@ export default function RecruiterProfile() {
     };
 
     if (isAuthenticated) {
-      fetchData();
-      loadApplications();
+      void (async () => {
+        await fetchData();
+        await loadApplications();
+      })();
     }
   }, [isAuthenticated, setRecruiterId, loadApplications, reset]);
 
@@ -228,7 +234,10 @@ export default function RecruiterProfile() {
     <main className="min-h-screen space-y-6 bg-[#FCFBF9] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <button
-          onClick={() => router.push("/")}
+          onClick={() => {
+            toast.info("Taking you back home.");
+            router.push("/");
+          }}
           className="inline-flex items-center gap-2 rounded-xl border border-[#ECE3DA] bg-white px-4 py-2 text-sm font-semibold text-[#55463E] shadow-sm transition-all duration-200 hover:border-[#5B1E05]/30 hover:bg-[#F8ECE4]/50 hover:shadow-md active:scale-95"
         >
           <ArrowLeft size={16} /> Back to Home

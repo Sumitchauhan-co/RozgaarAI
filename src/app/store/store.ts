@@ -5,6 +5,7 @@ import { tokenPayload } from "../utils/token";
 
 interface AuthState {
   isAuthenticated: boolean;
+  isHydrated: boolean; // ⚡ Added hydration tracking flag
   userId: string | null;
   workerId: string | null;
   recruiterId: string | null;
@@ -13,6 +14,7 @@ interface AuthState {
   setAuthenticated: (status: boolean, token?: string) => void;
   setWorkerId: (id: string | null | undefined) => void;
   setRecruiterId: (id: string | null | undefined) => void;
+  setHasHydrated: (status: boolean) => void;
   clearAuth: () => void;
 }
 
@@ -29,11 +31,15 @@ export const useAuthStore = create<AuthState>()(
     persist(
       set => ({
         isAuthenticated: false,
+        isHydrated: false, // Initial state set to false until storage is read
         userId: null,
         workerId: null,
         recruiterId: null,
         role: null,
         accessToken: null,
+
+        setHasHydrated: (status: boolean) =>
+          set({ isHydrated: status }, false, "auth/setHasHydrated"),
 
         setAuthenticated: (status, token) => {
           if (status) {
@@ -121,6 +127,10 @@ export const useAuthStore = create<AuthState>()(
           role: state.role,
           accessToken: state.accessToken,
         }),
+        // ⚡ Mark hydration complete once localStorage has been read into state
+        onRehydrateStorage: () => state => {
+          state?.setHasHydrated(true);
+        },
       }
     )
   )

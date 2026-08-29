@@ -50,6 +50,20 @@
       "when": 1787567409629,
       "tag": "0006_lean_kulan_gath",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787692521330,
+      "tag": "0007_wide_princess_powerful",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787989967806,
+      "tag": "0008_silky_dracula",
+      "breakpoints": true
     }
   ]
 }

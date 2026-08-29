@@ -74,7 +74,7 @@ export default function LoginPage() {
       setRecruiterId(profile.id);
     }
 
-    router.push("/profile");
+    router.back();
   };
 
   return (
@@ -102,9 +102,16 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-gray-500">Login to Rozgaar AI</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-8 space-y-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="mt-8 space-y-5"
+        >
           <div>
-            <label htmlFor="email" className="text-sm font-semibold text-[#2B0F05]">
+            <label
+              htmlFor="email"
+              className="text-sm font-semibold text-[#2B0F05]"
+            >
               Email
             </label>
             <div className="mt-2 flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
@@ -125,9 +132,20 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="text-sm font-semibold text-[#2B0F05]">
-              Password
-            </label>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <label
+                htmlFor="password"
+                className="text-sm font-semibold text-[#2B0F05]"
+              >
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-[#8F3E13] hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <div className="mt-2 flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors focus-within:border-[#8F3E13]">
               <Lock className="shrink-0 text-[#8F3E13]" size={18} />
               <input

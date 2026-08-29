@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 type SignupFormValues = {
   firstName: string;
@@ -80,6 +81,7 @@ export default function SignupPage() {
 
     if (token) {
       setAuthenticated(true, token);
+      toast.success("Account created successfully. Welcome to RozgaarAI!");
       router.push("/");
       return;
     }

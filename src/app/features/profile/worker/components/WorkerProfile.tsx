@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import EditWorkerAppModal from "../components/EditWorkerModal";
+import { toast } from "sonner";
 import {
   deleteWorkerApplication,
   deleteWorkerProfile,
@@ -26,7 +26,8 @@ import {
   getWorkerProfile,
   saveWorkerProfile,
   updateWorkerApplication,
-} from "../server/actions/worker";
+} from "../actions/worker";
+import EditWorkerAppModal from "../components/EditWorkerModal";
 import {
   ApiResponse,
   LocalWorkerState,
@@ -88,7 +89,10 @@ export default function WorkerProfile() {
   });
 
   useEffect(() => {
-    if (!isAuthenticated) router.push("/login");
+    if (!isAuthenticated) {
+      toast.warning("Please log in to access your worker profile.");
+      router.push("/login");
+    }
   }, [isAuthenticated, router]);
 
   const fetchApplications = useCallback(async () => {
@@ -157,8 +161,10 @@ export default function WorkerProfile() {
     };
 
     if (isAuthenticated) {
-      fetchData();
-      fetchApplications();
+      void (async () => {
+        await fetchData();
+        await fetchApplications();
+      })();
     }
   }, [isAuthenticated, setWorkerId, fetchApplications, reset]);
 
@@ -337,7 +343,10 @@ export default function WorkerProfile() {
     <main className="min-h-screen space-y-6 bg-[#FCFBF9] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <button
-          onClick={() => router.push("/")}
+          onClick={() => {
+            toast.info("Taking you back home.");
+            router.push("/");
+          }}
           className="inline-flex items-center gap-2 rounded-xl border border-[#ECE3DA] bg-white px-4 py-2 text-sm font-semibold text-[#55463E] shadow-sm transition-all duration-200 hover:border-[#5B1E05]/30 hover:bg-[#F8ECE4]/50 hover:shadow-md active:scale-95"
         >
           <ArrowLeft size={16} /> Back to Home

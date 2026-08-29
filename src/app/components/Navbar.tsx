@@ -1,141 +1,150 @@
 "use client";
 
-import { Menu, PlusCircle, X } from "lucide-react";
+import { signOutAction } from "@/app/features/auth/actions/auth";
+import { useAuthStore } from "@/app/store/store";
+import { Menu, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useAuthStore } from "../store/store";
+
+const baseLinks = [
+  { title: "Home", href: "/" },
+  { title: "Pricing", href: "/pricing" },
+  { title: "Find Work", href: "/jobs", role: "worker" },
+  { title: "Hire", href: "/hire", role: "recruiter" },
+  { title: "Applications", href: "/applications" },
+  { title: "About", href: "/about" },
+];
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
-  const { isAuthenticated } = useAuthStore();
+  const { role, isAuthenticated, clearAuth } = useAuthStore();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    const res = await signOutAction();
+    if (!res.error) {
+      clearAuth();
+      setIsOpen(false);
+    }
+  };
+
+  // Filter navigation links based on role
+  const filteredLinks = baseLinks.filter(item => {
+    if (!item.role) return true; // Common links visible to everyone
+    if (!isAuthenticated) return true; // Show all when guest, page guardrails will handle redirects
+    return item.role === role; // Show specific links matching the authenticated user's role
+  });
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2">
+    <header className="sticky top-0 z-50 border-b border-[#ECE3DA] bg-[#FCFBF9]/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-8">
+        {/* Logo */}
+        <Link href="/">
           <Image
             src="/images/logo.png"
-            alt="RozgaarAI Logo"
-            width={140}
-            height={40}
-            className="object-contain"
+            alt="RozgaarAI"
+            width={185}
+            height={60}
+            className="h-auto w-auto"
             priority
           />
         </Link>
 
-        {/* DESKTOP NAV */}
-        <nav className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-          <Link href="/" className="hover:text-[#8F3E13]">
-            Home
-          </Link>
-          <Link href="/jobs" className="hover:text-[#8F3E13]">
-            Jobs
-          </Link>
-          <Link href="/dashboard" className="hover:text-[#8F3E13]">
-            Dashboard
-          </Link>
-          <Link href="/applications" className="hover:text-[#8F3E13]">
-            Applications
-          </Link>
-          <Link href="/ai-assistant" className="hover:text-[#8F3E13]">
-            AI
-          </Link>
+        {/* Desktop Navigation */}
+        <nav className="hidden items-center gap-10 lg:flex">
+          {filteredLinks.map(item => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="text-[15px] font-medium text-[#55463E] transition-colors hover:text-[#5B1E05]"
+            >
+              {item.title}
+            </Link>
+          ))}
         </nav>
 
-        {/* ACTIONS (DESKTOP) */}
-        <div className="hidden items-center gap-3 md:flex">
-          <Link
-            href="/post-job"
-            className="flex items-center gap-2 rounded-xl bg-[#5B1E05] px-4 py-2 text-white transition hover:bg-[#3f1203]"
-          >
-            <PlusCircle size={16} />
-            Post Job
-          </Link>
-
+        {/* Desktop & Mobile Actions Combo */}
+        <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <Link
-              href="/login"
-              className="rounded-xl border px-4 py-2 text-sm font-semibold text-[#5B1E05] hover:bg-[#F8ECE4]"
-            >
-              Login
-            </Link>
-          ) : (
-            <Link
-              href="/signout"
-              className="rounded-xl border px-4 py-2 text-sm font-semibold text-[#5B1E05] hover:bg-[#F8ECE4]"
-            >
-              Signout
-            </Link>
-          )}
-        </div>
-
-        {/* MOBILE BUTTON */}
-        <button
-          type="button"
-          onClick={() => setOpen(!open)}
-          className="rounded-xl border p-2 md:hidden"
-        >
-          {open ? <X /> : <Menu />}
-        </button>
-      </div>
-
-      {/* MOBILE MENU */}
-      {open && (
-        <div className="space-y-4 border-t bg-white px-6 py-4 md:hidden">
-          <div className="sticky top-0 z-50 border-b border-[#F2E3D8] bg-white/80 backdrop-blur-md">
-            <Link href="/" className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]">
-              Home
-            </Link>
-
-            <Link
-              href="/jobs"
-              className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]"
-            >
-              Jobs
-            </Link>
-
-            <Link
-              href="/dashboard"
-              className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]"
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              href="/applications"
-              className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]"
-            >
-              Applications
-            </Link>
-
-            <Link
-              href="/assistant"
-              className="rounded-lg px-4 py-3 hover:bg-[#F8ECE4]"
-            >
-              AI Assistant
-            </Link>
-          </div>
-          <div className="space-y-3 border-t pt-4">
-            <div className="space-y-3 border-t pt-4">
-              <Link
-                onClick={() => setOpen(false)}
-                href="/post-job"
-                className="block rounded-xl bg-[#5B1E05] py-2 text-center text-white"
+            <>
+              {/* Desktop Only Signout */}
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="hidden rounded-xl border px-4 py-2 text-sm font-semibold text-[#5B1E05] hover:bg-[#F8ECE4] lg:block"
               >
-                Post Job
-              </Link>
+                Signout
+              </button>
 
+              {/* Profile Icon (Visible Everywhere) */}
               <Link
-                onClick={() => setOpen(false)}
+                href="/profile"
+                onClick={() => setIsOpen(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ECE3DA]/50 transition-colors hover:bg-[#ECE3DA]"
+              >
+                <User size={20} className="text-[#5B1E05]" />
+              </Link>
+            </>
+          ) : (
+            <>
+              {/* Desktop Only Login */}
+              <Link
                 href="/login"
-                className="block rounded-xl border py-2 text-center"
+                className="hidden rounded-xl border px-4 py-2 text-sm font-semibold text-[#5B1E05] hover:bg-[#F8ECE4] lg:block"
               >
                 Login
               </Link>
+            </>
+          )}
+
+          {/* Mobile Hamburger Toggle (Right of user icon) */}
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-[#5B1E05] hover:bg-[#F8ECE4] lg:hidden"
+            aria-label="Toggle Menu"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Dropdown Drawer */}
+      {isOpen && (
+        <div className="border-t border-[#ECE3DA] bg-[#FCFBF9] px-8 py-6 shadow-xl lg:hidden">
+          <nav className="flex flex-col gap-5">
+            {filteredLinks.map(item => (
+              <Link
+                key={item.title}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className="text-base font-medium text-[#55463E] transition-colors hover:text-[#5B1E05]"
+              >
+                {item.title}
+              </Link>
+            ))}
+
+            {/* Auth specific mobile buttons attached at the bottom of the drawer */}
+            <div className="mt-4 border-t border-[#ECE3DA]/60 pt-4">
+              {isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="w-full rounded-xl border border-[#ECE3DA] py-3 text-center text-sm font-semibold text-[#5B1E05] hover:bg-[#F8ECE4]"
+                >
+                  Signout
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full rounded-xl bg-[#5B1E05] py-3 text-center text-sm font-semibold text-white hover:bg-[#421503]"
+                >
+                  Login
+                </Link>
+              )}
             </div>
-          </div>
+          </nav>
         </div>
       )}
     </header>

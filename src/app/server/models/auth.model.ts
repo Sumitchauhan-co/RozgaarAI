@@ -15,4 +15,19 @@ export const signinModel = z.object({
   password: z.string().min(8).max(255),
 });
 
+export const forgotPasswordModel = z.object({
+  email: z.email().min(6).max(255).lowercase().trim(),
+});
+
+export const resetPasswordModel = z
+  .object({
+    token: z.string().min(1, "Token is required."),
+    newPassword: z.string().min(8).max(255),
+    confirmPassword: z.string().min(8).max(255),
+  })
+  .refine(data => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
 export type UserRole = z.infer<typeof userRoleEnum>;

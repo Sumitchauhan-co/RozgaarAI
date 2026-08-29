@@ -2,6 +2,7 @@
 
 import { Home, Plus, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface ApplicationHeaderProps {
   onOpenCreateModal: () => void;
@@ -30,7 +31,10 @@ export default function ApplicationHeader({
         {/* NAVIGATION AND ACTION ROW */}
         <div className="flex flex-wrap gap-3 self-start sm:self-auto">
           <button
-            onClick={() => router.push("/")}
+            onClick={() => {
+              toast.info("Taking you back home.");
+              router.push("/");
+            }}
             className="flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white transition hover:bg-white/20"
           >
             <Home size={20} /> Back to Home
