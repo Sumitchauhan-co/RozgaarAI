@@ -10,8 +10,8 @@ const runMigrations = async () => {
     throw new Error("No database connection string provided in environment.");
   }
 
-  // Connect using direct connection on port 5432
-  const sql = postgres(connectionString, { max: 1 });
+  // prepare: false is required when executing over Supabase Pooler (Port 5432)
+  const sql = postgres(connectionString, { max: 1, prepare: false });
   const db = drizzle(sql);
 
   console.log("⏳ Running Drizzle migrations...");
