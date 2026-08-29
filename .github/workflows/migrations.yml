@@ -23,7 +23,7 @@ jobs:
 
       - name: Run Migrations
         env:
-          # Map both variables to your Supabase Direct Connection (Port 5432)
+          # Passes your direct connection string (Port 5432) to the migrate script
           DIRECT_URL: ${{ secrets.DIRECT_DATABASE_URL }}
           DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
-        run: npx drizzle-kit migrate --verbose
+        run: npx tsx src/app/db/migrate.ts
