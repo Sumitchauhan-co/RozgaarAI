@@ -1,6 +1,5 @@
 "use client";
 
-import CategoryExplorer from "./CategoryExplorer";
 import DualValueProp from "./DualValueProp";
 import FaqSection from "./FaqSection";
 import HeroSection from "./HeroSection";
@@ -11,7 +10,7 @@ export default function LandingPage() {
   return (
     <main className="relative min-h-screen bg-[#FCFBF9]">
       <HeroSection />
-      <CategoryExplorer />
+      {/* <CategoryExplorer /> */}
       <HowItWorks />
       <DualValueProp />
       <TestimonialsSection />

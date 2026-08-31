@@ -4,54 +4,54 @@ import { Marquee } from "@/components/ui/marquee";
 import { Star } from "lucide-react";
 import StaticContributors from "./Contributors";
 
-const testimonials = [
+export const testimonials = [
   {
     name: "Ramesh Sharma",
-    role: "Electrician, New Delhi",
+    role: "Technical Recruiter, New Delhi",
     content:
-      "RozgaarAI matched me with verified commercial contractors within 2 days. The prompt search in Hindi made it very simple.",
+      "The AI candidate evaluation tool parsed over 200 multilingual resumes in minutes. The Hindi prompt search made screening incredibly efficient.",
     rating: 5,
   },
   {
     name: "Priya Nair",
-    role: "Recruiter, Bangalore",
+    role: "Talent Acquisition Lead, Bangalore",
     content:
-      "Finding reliable daily wage workers used to be chaotic. Now I get verified profiles directly with clear salary expectations.",
+      "Screening candidate profiles used to take days. RozgaarAI automated our resume ranking and simplified candidate skill assessments.",
     rating: 5,
   },
   {
     name: "Amit Patel",
-    role: "Site Supervisor, Ahmedabad",
+    role: "HR Operations Manager, Ahmedabad",
     content:
-      "Hired 15 site workers in less than 48 hours for our project. The verified profile badge gave us complete peace of mind.",
+      "Evaluated and shortlisted candidates for 15 specialized roles in under 48 hours using the AI applicant scoring feature.",
     rating: 5,
   },
   {
     name: "Sunita Devi",
-    role: "Painter & Finisher, Jaipur",
+    role: "Recruitment Specialist, Jaipur",
     content:
-      "I used voice search in Hindi to find local residential gigs. The daily payout transparency is fantastic.",
+      "The natural language prompt parsing allows our team to search candidate databases in regional languages effortlessly.",
     rating: 5,
   },
   {
     name: "Vikram Singh",
-    role: "Plumbing Contractor, Pune",
+    role: "Engineering Manager, Pune",
     content:
-      "Managing hiring pipelines on RozgaarAI saves hours every week. Direct worker connect makes everything fast.",
+      "Managing applicant evaluation pipelines on RozgaarAI saves our team over 10 hours every week.",
     rating: 5,
   },
   {
     name: "Suresh Kumar",
-    role: "Carpenter, Mumbai",
+    role: "Lead Hiring Consultant, Mumbai",
     content:
-      "Got direct calls from top interior design studios without paying middlemen commission fees.",
+      "The automated profile verification and AI skill scoring gave our hiring managers complete accuracy during initial rounds.",
     rating: 5,
   },
   {
     name: "Meenakshi Sundaram",
-    role: "Logistics Lead, Chennai",
+    role: "Logistics HR Lead, Chennai",
     content:
-      "AI applicant ranking sorted candidate profiles by experience instantly. Best platform for quick hiring.",
+      "AI applicant ranking sorted candidate profiles by technical experience instantly. Outstanding SaaS tool for modern recruitment teams.",
     rating: 5,
   },
 ];

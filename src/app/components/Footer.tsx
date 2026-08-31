@@ -11,17 +11,25 @@ import Link from "next/link";
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Jobs", href: "/jobs" },
-  { label: "Hire", href: "/hire" },
+  { label: "Job Search with AI", href: "/jobs" },
+  { label: "Candidate Search with AI", href: "/hire" },
   { label: "Applications", href: "/applications" },
   { label: "About", href: "/about" },
 ];
 
+const LEGAL_LINKS = [
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Cancellation & Refund", href: "/refund-policy" },
+  { label: "Digital Fulfillment", href: "/shipping-policy" },
+  { label: "Contact Us", href: "/contact" },
+];
+
 const FEATURES = [
-  "AI Job Matching",
-  "Verified Employers",
-  "Fair Wage System",
-  // "Multilingual Support",
+  "AI Resume Screening",
+  "Candidate Evaluation",
+  "Automated Skill Scoring",
+  "Multilingual Search",
 ];
 
 const CONTACT_INFO = [
@@ -49,9 +57,9 @@ export default function Footer() {
       <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-96 -translate-x-1/2 rounded-full bg-[#8F3E13]/25 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-5">
-          {/* BRAND (Spans 2 columns on desktop) */}
-          <div className="space-y-4 lg:col-span-2">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+          {/* BRAND */}
+          <div className="space-y-4 lg:col-span-1">
             <Link href="/" className="group inline-flex items-center gap-2.5">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-[#F6C98F] backdrop-blur-md transition-all duration-300 group-hover:scale-105 group-hover:bg-white/20">
                 <BriefcaseBusiness size={20} />
@@ -62,14 +70,13 @@ export default function Footer() {
             </Link>
 
             <p className="max-w-sm text-sm leading-relaxed text-white/70">
-              AI-powered employment platform connecting skilled workers with
-              trusted employers across India.
+              AI-powered candidate screening and resume evaluation software for
+              modern hiring teams across India.
             </p>
 
             {/* Quick Status Pill */}
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-white/80">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-              Empowering Bharat&apos;s Workforce
+              Empowering Indians.
             </div>
           </div>
 
@@ -80,6 +87,29 @@ export default function Footer() {
             </h3>
             <ul className="mt-4 space-y-3 text-sm text-white/70">
               {QUICK_LINKS.map(link => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="group inline-flex items-center gap-1 transition-all duration-200 hover:translate-x-1 hover:text-white"
+                  >
+                    <span>{link.label}</span>
+                    <ArrowUpRight
+                      size={13}
+                      className="text-[#F6C98F] opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* LEGAL & POLICIES (Crucial for Razorpay / Cashfree Verification) */}
+          <div>
+            <h3 className="text-sm font-bold tracking-wider text-[#F6C98F] uppercase">
+              Legal & Policies
+            </h3>
+            <ul className="mt-4 space-y-3 text-sm text-white/70">
+              {LEGAL_LINKS.map(link => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
@@ -158,7 +188,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-white/80 backdrop-blur-md">
             <Sparkles size={14} className="text-[#F6C98F]" />
-            <span>Built for connecting India’s workforce</span>
+            <span>AI Resume & Candidate Evaluation SaaS</span>
           </div>
         </div>
       </div>

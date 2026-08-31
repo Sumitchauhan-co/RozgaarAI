@@ -13,12 +13,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const STATS = [
-  { value: "10k+", label: "Verified Workers" },
-  { value: "98%", label: "Match Accuracy" },
-  { value: "5k+", label: "Recruiters Onboarded" },
-  { value: "24/7", label: "AI Assistance" },
-];
+// const STATS = [
+//   { value: "10k+", label: "Verified Workers" },
+//   { value: "98%", label: "Match Accuracy" },
+//   { value: "5k+", label: "Recruiters Onboarded" },
+//   { value: "24/7", label: "AI Assistance" },
+// ];
 
 const FEATURES = [
   {
@@ -132,7 +132,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Counter Section */}
-      <section className="border-y border-[#ECE3DA] bg-[#F8ECE4]/40 px-6 py-12 md:px-12">
+      {/* <section className="border-y border-[#ECE3DA] bg-[#F8ECE4]/40 px-6 py-12 md:px-12">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 text-center md:grid-cols-4">
           {STATS.map((stat, idx) => (
             <div key={idx} className="space-y-1">
@@ -145,7 +145,7 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* Core Features / Mission */}
       <section className="px-6 py-20 md:px-12">

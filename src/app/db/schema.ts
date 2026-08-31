@@ -1,4 +1,5 @@
 export * from "./auth.schema";
+export * from "./contact.schema";
 export * from "./recruiter.schema";
 export * from "./recruiterApplication.schema";
 export * from "./worker.schema";

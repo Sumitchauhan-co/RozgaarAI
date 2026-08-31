@@ -64,6 +64,13 @@
       "when": 1787989967806,
       "tag": "0008_silky_dracula",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788186998170,
+      "tag": "0009_spotty_deathbird",
+      "breakpoints": true
     }
   ]
 }

@@ -138,7 +138,7 @@ export default function WorkerProfile() {
               bio: nextData.bio ?? "",
             });
             setProfileExists(true);
-            setWorkerId(rawData.id);
+            setWorkerId(rawData.id); // worker id is set here
             return;
           }
         }
@@ -252,7 +252,7 @@ export default function WorkerProfile() {
         });
         setProfileExists(true);
         setIsEditing(false);
-        setWorkerId(resData.data.id);
+        setWorkerId(resData.data.id); // worker is set here
       }
     } catch (err) {
       setServerError(
