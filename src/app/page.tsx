@@ -1,4 +1,4 @@
-import AuthInitializer from "./components/AuthInitialiser";
+import AuthInitializer from "./components/auth/AuthInitialiser";
 import Footer from "./components/Footer";
 import LandingPage from "./components/home/LandingPage";
 import Navbar from "./components/Navbar";
